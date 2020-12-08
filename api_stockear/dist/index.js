@@ -42,7 +42,8 @@ var express = require("express");
 var cors = require("cors");
 var helmet = require("helmet");
 var routes_1 = require("./routes");
-var PORT = process.env.PORT || 3000;
+//const PORT = process.env.PORT || 3000;
+var PORT = 42521;
 typeorm_1.createConnection()
     .then(function () { return __awaiter(void 0, void 0, void 0, function () {
     var app;
