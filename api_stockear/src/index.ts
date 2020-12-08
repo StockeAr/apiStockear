@@ -6,9 +6,7 @@ import * as cors from "cors";
 import * as helmet from "helmet";
 import routes from "./routes"
 import router from "./routes/auth";
-//const PORT = process.env.PORT || 3000;
-const PORT = 42521;
-
+const PORT = process.env.PORT || 3000;
 
 createConnection()
     .then(async () => {
