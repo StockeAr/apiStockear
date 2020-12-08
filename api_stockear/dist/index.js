@@ -42,8 +42,7 @@ var express = require("express");
 var cors = require("cors");
 var helmet = require("helmet");
 var routes_1 = require("./routes");
-//const PORT = process.env.PORT || 3000;
-var PORT ="www.db4free.net/phpMyAdmin/db_structure.php?server=1&db=apistockear";
+var PORT = process.env.PORT || 3000;
 typeorm_1.createConnection()
     .then(function () { return __awaiter(void 0, void 0, void 0, function () {
     var app;

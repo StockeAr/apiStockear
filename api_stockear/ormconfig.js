@@ -1,10 +1,10 @@
 module.exports={
    "type": "mysql",
-   "host": "db4free.net",
+   "host": "us-cdbr-east-02.cleardb.com",
    "port": 3306,
-   "username": "stockear",
-   "password": "stockear",
-   "database": "apistockear",
+   "username": "b55f79f71151d2:0d901c23",
+   "password": "0d901c23",
+   "database": "heroku_b8b9f13ef66c1bf",
    "synchronize": true,
    "logging": false,
    "entities": [
