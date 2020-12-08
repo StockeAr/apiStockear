@@ -27,6 +27,6 @@
    "scripts": {
       "tsc": "tsc",
       "dev": "set debug=* && ts-node-dev --respawn --transpile-only ./src/index.ts",
-      "start":"node src/index.ts"
+      "start":"node dist/index.js"
    }
 }
