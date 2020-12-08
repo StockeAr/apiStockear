@@ -1,4 +1,4 @@
-{
+module.exports={
    "type": "mysql",
    "host": "us-cdbr-east-02.cleardb.com",
    "port": 3306,
@@ -8,13 +8,13 @@
    "synchronize": true,
    "logging": false,
    "entities": [
-      "src/entity/**/*.ts"
+      "dist/entity/**/*.js"
    ],
    "migrations": [
-      "src/migration/**/*.ts"
+      "dist/migration/**/*.ts"
    ],
    "subscribers": [
-      "src/subscriber/**/*.ts"
+      "dist/subscriber/**/*.ts"
    ],
    "cli": {
       "entitiesDir": "src/entity",
