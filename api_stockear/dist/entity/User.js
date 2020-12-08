@@ -59,13 +59,11 @@ var User = /** @class */ (function () {
         __metadata("design:type", String)
     ], User.prototype, "rol", void 0);
     __decorate([
-        typeorm_1.Column(),
-        typeorm_1.CreateDateColumn(),
+        typeorm_1.Column({ type: 'datetime' }),
         __metadata("design:type", Date)
     ], User.prototype, "creado", void 0);
     __decorate([
-        typeorm_1.Column(),
-        typeorm_1.UpdateDateColumn(),
+        typeorm_1.Column({ type: 'datetime' }),
         __metadata("design:type", Date)
     ], User.prototype, "modificado", void 0);
     __decorate([

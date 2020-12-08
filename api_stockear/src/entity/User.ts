@@ -35,12 +35,12 @@ export class User {
     @IsNotEmpty()
     rol: string;
 
-    @Column()
-    @CreateDateColumn()
+    @Column({type:'datetime'})
+    //@CreateDateColumn()
     creado: Date;
 
-    @Column()
-    @UpdateDateColumn()
+    @Column({type:'datetime'})
+    //@UpdateDateColumn()
     modificado: Date;
 
     @OneToMany(()=>Producto,(producto:Producto)=>producto.user)
