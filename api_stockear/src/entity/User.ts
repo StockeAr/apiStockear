@@ -1,7 +1,7 @@
 import { IsNotEmpty, MinLength, IsEmail, isEmail, IsOptional } from "class-validator";
 import { Entity, PrimaryGeneratedColumn, Column, Unique, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
 import * as bcrypt from 'bcryptjs';
-import {Producto} from './Producto';
+import { Producto } from './Producto';
 
 @Entity()
 @Unique(['username'])
@@ -35,16 +35,16 @@ export class User {
     @IsNotEmpty()
     rol: string;
 
-    @Column({type:'datetime'})
+    @Column({ type: 'datetime' })
     //@CreateDateColumn()
     creado: Date;
 
-    @Column({type:'datetime'})
+    @Column({ type: 'datetime' })
     //@UpdateDateColumn()
     modificado: Date;
 
-    @OneToMany(()=>Producto,(producto:Producto)=>producto.user)
-    productos:Producto[];
+    @OneToMany(() => Producto, (producto: Producto) => producto.user)
+    productos: Producto[];
 
     hashPassword(): void {
         const salt = bcrypt.genSaltSync(10);
