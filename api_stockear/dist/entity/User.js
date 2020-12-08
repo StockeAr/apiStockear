@@ -63,7 +63,7 @@ var User = /** @class */ (function () {
         __metadata("design:type", Date)
     ], User.prototype, "creado", void 0);
     __decorate([
-        typeorm_1.Column({ type: 'datetime', default: 'CURRENT_TIMESTAMP()' }),
+        typeorm_1.Column({ type: 'datetime' }),
         __metadata("design:type", Date)
     ], User.prototype, "modificado", void 0);
     __decorate([
