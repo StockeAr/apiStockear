@@ -39,7 +39,7 @@ export class User {
     //@CreateDateColumn()
     creado: Date;
 
-    @Column({type:'datetime',default:'CURRENT_TIMESTAMP()'})
+    @Column({type:'datetime'})
     //@UpdateDateColumn()
     modificado: Date;
 
