@@ -163,9 +163,9 @@ var AuthController = /** @class */ (function () {
                     _a.trys.push([4, 6, , 7]);
                     //envio de email
                     return [4 /*yield*/, mailer_1.transporter.sendMail({
-                            from: '"StockeAr 🤦‍♂️" <proyecto.pp3@gmail.com>',
+                            from: '"StockeAr ✔" <proyecto.pp3@gmail.com>',
                             to: user.username,
-                            subject: "Recuperar contraseña ✔",
+                            subject: "Recuperar contraseña 🤦‍♂️",
                             //text: "Hello world?", // plain text body
                             html: "\n                    <b>Por favor haga click en el siguiente link o copie en su navegador para completar el proceso</b>\n                    <a href=\"" + verificationLink + "\">" + verificationLink + "</a>\n                ",
                         })];

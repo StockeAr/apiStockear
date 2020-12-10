@@ -97,9 +97,9 @@ class AuthController {
         try {
             //envio de email
             await transporter.sendMail({
-                from: '"StockeAr 🤦‍♂️" <proyecto.pp3@gmail.com>', // sender address
+                from: '"StockeAr ✔" <proyecto.pp3@gmail.com>', // sender address
                 to: user.username, // list of receivers
-                subject: "Recuperar contraseña ✔", // Subject line
+                subject: "Recuperar contraseña 🤦‍♂️", // Subject line
                 //text: "Hello world?", // plain text body
                 html: `
                     <b>Por favor haga click en el siguiente link o copie en su navegador para completar el proceso</b>
