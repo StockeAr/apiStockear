@@ -97,16 +97,20 @@ var UserController = /** @class */ (function () {
         });
     }); };
     UserController.newUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, username, password, rol, user, opcionesValidacion, errors, userRepository, e_3;
+        var _a, username, password, rol, user, fecha, opcionesValidacion, errors, userRepository, e_3;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _a = req.body, username = _a.username, password = _a.password, rol = _a.rol;
                     user = new User_1.User();
+                    fecha = new Date();
                     user.username = username;
                     user.password = password;
                     user.rol = rol;
                     user.resetToken = 'vacio';
+                    user.refreshToken = 'vacio';
+                    user.creado = fecha;
+                    user.modificado = fecha;
                     opcionesValidacion = { validationError: { target: false, value: false } };
                     return [4 /*yield*/, class_validator_1.validate(user, opcionesValidacion)];
                 case 1:
@@ -135,12 +139,13 @@ var UserController = /** @class */ (function () {
         });
     }); };
     UserController.editUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var user, id, _a, username, rol, userRepository, e_4, opcionesValidacion, errors, e_5;
+        var user, id, _a, username, rol, fecha, userRepository, e_4, opcionesValidacion, errors, e_5;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     id = req.params.id;
                     _a = req.body, username = _a.username, rol = _a.rol;
+                    fecha = new Date();
                     userRepository = typeorm_1.getRepository(User_1.User);
                     _b.label = 1;
                 case 1:
@@ -150,6 +155,7 @@ var UserController = /** @class */ (function () {
                     user = _b.sent();
                     user.username = username;
                     user.rol = rol;
+                    user.modificado = fecha;
                     return [3 /*break*/, 4];
                 case 3:
                     e_4 = _b.sent();

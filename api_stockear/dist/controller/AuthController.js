@@ -152,7 +152,8 @@ var AuthController = /** @class */ (function () {
                 case 2:
                     user = _a.sent();
                     token = jwt.sign({ userId: user.id, username: user.username }, config_1.default.jwtSecretReset, { expiresIn: '10m' });
-                    verificationLink = "http://localhost:3000/new-password/" + token;
+                    //verificationLink = `http://localhost:3000/new-password/${token}`;
+                    verificationLink = "http://apistockear.herokuapp.com/new-password/" + token;
                     user.resetToken = token;
                     return [3 /*break*/, 4];
                 case 3:

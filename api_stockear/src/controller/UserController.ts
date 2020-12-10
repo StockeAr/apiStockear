@@ -35,10 +35,14 @@ export class UserController {
     static newUser = async (req: Request, res: Response) => {
         const { username, password, rol } = req.body;
         const user = new User();
+        const fecha=new Date();
         user.username = username;
         user.password = password;
         user.rol = rol;
         user.resetToken='vacio';
+        user.refreshToken='vacio';
+        user.creado=fecha;
+        user.modificado=fecha;
         //validaciones
         const opcionesValidacion = { validationError: { target: false, value: false } };
         const errors = await validate(user,opcionesValidacion);
@@ -63,11 +67,13 @@ export class UserController {
         let user;
         const { id } = req.params;
         const { username, rol } = req.body;
+        const fecha=new Date();
         const userRepository = getRepository(User);
         try {
             user = await userRepository.findOneOrFail(id);
             user.username = username;
             user.rol = rol;
+            user.modificado=fecha;
         }
         catch (e) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
