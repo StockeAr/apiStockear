@@ -12,7 +12,7 @@ export class ProductoController{
             producto=await productoRepo.find({
                 select:['id','descripcion','costo','cantidad','minExistencia'],
                 where:{user:userId},
-                relations:['categoria','medida']
+                relations:['categoria']
             })
         } catch (e) {
             console.log(e);
@@ -37,7 +37,7 @@ export class ProductoController{
             producto=await productoRepo.findOneOrFail(id,{
                 select:['id','descripcion','costo','cantidad','minExistencia'],
                 where:{user:userId},
-                relations:['medida','categoria']
+                relations:['categoria']
             });
             res.send(producto);
         } catch (e) {
@@ -47,7 +47,7 @@ export class ProductoController{
     };
 
     static newProducto= async (req: Request, res: Response) => {
-        const {descripcion,costo, cantidad, minExistencia, medidaId, categoriaId}=req.body;
+        const {descripcion,costo, cantidad, minExistencia, categoriaId}=req.body;
         const {userId}=res.locals.jwtPayload;
         //falta asociar a medida,categoria
 
