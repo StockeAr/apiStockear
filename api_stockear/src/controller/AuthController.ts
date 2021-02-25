@@ -17,7 +17,7 @@ class AuthController {
         const userRepository = getRepository(User);
         let user: User;
         try {
-            user = await userRepository.findOneOrFail({ where: { username } });
+            user = await userRepository.findOneOrFail({ where: { username:username.toLowerCase() } });
         }
         catch (e) {
             return res.status(404).json({ message: 'Usuario / Contraseña son incorrectos' });
@@ -27,11 +27,14 @@ class AuthController {
         if (!user.checkPassword(password)) {
             return res.status(400).json({ message: 'Usuario / Contraseña son incorrectos' });
         }
-        const token = jwt.sign({ userId: user.id, username: user.username }, config.jwtSecret, { expiresIn: '30m' });
-        const refreshToken = jwt.sign({ userId: user.id, username: user.username }, config.jwtSecretRefresh, { expiresIn: '30m' });
+        const token = jwt.sign({ userId: user.id, username: user.username }, config.jwtSecret, { expiresIn: '2h' });
+        const refreshToken = jwt.sign({ userId: user.id, username: user.username }, config.jwtSecretRefresh, { expiresIn: '2h' });
 
         const role = user.rol;
         const userId = user.id;
+        const adminId = user.adminId;
+        const nombre = user.nombre;
+        const apellido = user.apellido;
 
         user.refreshToken = refreshToken;
         try {
@@ -39,7 +42,8 @@ class AuthController {
         } catch (error) {
             return res.status(400).json({ message: 'algo anda mal' });
         }
-        res.json({ message: 'Ok', token, refreshToken, role /* , userId */ });
+        res.json({ message: 'Ok', token, refreshToken, role, userId, adminId, nombre, apellido });
+
     };
 
     static changePassword = async (req: Request, res: Response) => {
@@ -71,6 +75,49 @@ class AuthController {
         res.json({ message: 'Se ha cambiado la contraseña' });
     };
 
+    static newAdmin = async (req: Request, res: Response) => {
+        const { username, password, nombre, apellido, confirmPassword } = req.body;
+        const user = new User();
+        const fecha = new Date();
+        user.username = username.toLowerCase();
+        user.password = password;
+        user.rol = 'admin';
+        user.resetToken = 'vacio';
+        user.refreshToken = 'vacio';
+        user.creado = fecha;
+        user.modificado = fecha;
+        user.adminId = 0;
+        user.nombre = nombre;
+        user.apellido = apellido;
+
+        //validaciones
+        const opcionesValidacion = { validationError: { target: false, value: false } };
+        const errors = await validate(user, opcionesValidacion);
+        if (errors.length > 0) {
+            return res.status(404).json({message:errors});
+        }
+
+        if (password != confirmPassword) {
+            return res.status(409).json({ message: 'Las contraseñas no coinciden' });
+        }
+        //aqui vamos a realizar el hash para mas seguridad en las contraseñas
+
+        const userRepository = getRepository(User);
+
+        //console.log('esto guardo: ',user);
+
+        try {
+            user.hashPassword();
+            await userRepository.save(user);
+        }
+        catch (e) {
+            console.log(e);
+            return res.status(409).json({ message: 'Este usuario ya esta registrado' });
+        }
+        //si todo esta bien mando un mensaje al front
+        res.status(201).json({ message: 'Registro exitoso' });
+    };
+
     static forgotPassword = async (req: Request, res: Response) => {
         const { username } = req.body;
         if (!(username)) {
@@ -85,14 +132,14 @@ class AuthController {
         try {
             user = await userRepo.findOneOrFail({ where: { username } });
             const token = jwt.sign({ userId: user.id, username: user.username }, config.jwtSecretReset, { expiresIn: '10m' });
-            //verificationLink = `http://localhost:3000/new-password/${token}`;
-            verificationLink = `http://apistockear.herokuapp.com/new-password/${token}`;
+            verificationLink = `http://localhost:3000/new-password/${token}`;
+            //verificationLink = `http://apistockear.herokuapp.com/new-password/${token}`;
             user.resetToken = token;
         } catch (e) {
             return res.json({ message });
         }
 
-        //para hacer 
+        //para hacer: luego del envio de mail, 
 
         try {
             //envio de email
