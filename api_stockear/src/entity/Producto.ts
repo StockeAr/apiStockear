@@ -3,6 +3,7 @@ import {User} from './User';
 import {Medida} from './Medida';
 import { Categoria } from "./Categoria";
 import { IsNotEmpty } from "class-validator";
+import { VentaProducto } from "./VentaProducto";
 
 @Entity()
 export class Producto{
@@ -41,5 +42,8 @@ export class Producto{
     @ManyToOne(() =>Categoria,(categoria:Categoria)=>categoria.productos)
     @IsNotEmpty()
     categoria:Categoria;
+
+    @OneToMany(() =>VentaProducto,(ventaProducto:VentaProducto)=>ventaProducto.producto)
+    public ventaProducto!:VentaProducto[];
 
 }

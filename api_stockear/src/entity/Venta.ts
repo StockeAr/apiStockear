@@ -3,6 +3,7 @@ import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryCol
 import { Descuento } from "./Descuento";
 import { Recargo } from "./Recargo";
 import { User } from "./User";
+import { VentaProducto } from "./VentaProducto";
 
 @Entity()
 
@@ -27,5 +28,7 @@ export class Venta{
     @JoinTable()
     recargos:Recargo[];
 
+    @OneToMany(()=>VentaProducto,(ventaProducto:VentaProducto)=>ventaProducto.venta)
+    public ventaProducto!:VentaProducto[];
 
 }
