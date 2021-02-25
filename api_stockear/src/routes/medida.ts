@@ -1,9 +1,21 @@
 import { Router } from "express";
 import {MedidaController} from '../controller/MedidaController'
+import { checkJwt } from "../middleware/jwt";
+import { chekRol } from "../middleware/rol";
 
 const router=Router();
-router.get('/',MedidaController.getAll);
-router.patch('/:id',MedidaController.editMedida);
-router.post('/',MedidaController.new);
+//obtener todas las medidas
+router.get('/',[checkJwt, chekRol(['admin'])],MedidaController.getAll);
+//obtener una medida
+router.get('/:id', [checkJwt, chekRol(['admin'])],MedidaController.getById);
+//crear nueva medida
+router.post('/',[checkJwt, chekRol(['admin'])],MedidaController.newMedida);
+//editar una medida
+router.patch('/:id',[checkJwt, chekRol(['admin'])],MedidaController.editMedida);
+//eliminar una medida
+router.delete('/:id',[checkJwt, chekRol(['admin'])],MedidaController.deleteMedida);
+
+router.get('/info/info',MedidaController.info);
+router.get('/order',MedidaController.order);
 
 export default router;

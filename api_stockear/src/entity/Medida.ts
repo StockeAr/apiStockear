@@ -8,8 +8,8 @@ export class Medida{
 
     @Column()
     @IsNotEmpty()
-    nombre:string;
+    descripcion:string;
 
-    @OneToMany(()=>Ingrediente,(ingrediente:Ingrediente)=>ingrediente.medida)
-    ingredientes:Ingrediente[];
+    /* @OneToMany(()=>Ingrediente,(ingrediente:Ingrediente)=>ingrediente.medida)
+    ingredientes:Ingrediente[]; */
 }
