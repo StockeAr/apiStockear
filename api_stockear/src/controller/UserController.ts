@@ -1,19 +1,25 @@
 import { getRepository } from "typeorm";
-import { Request, Response } from "express";
+import { json, Request, Response, Router } from "express";
 import { User } from "../entity/User";
 import { validate } from 'class-validator';
 
 export class UserController {
     //Obtener todos los usuarios
+
     static getAll = async (req: Request, res: Response) => {
+        const { userId } = res.locals.jwtPayload;
         const userRepository = getRepository(User);
         let users;
         try {
-            users = await userRepository.find( { select: ['id', 'username', 'rol'] } );
+            users = await userRepository.find({
+                select: ['id', 'username', 'nombre','apellido', 'rol', 'modificado'],
+                where: { adminId: userId }
+            });
         }
         catch (e) {
             res.status(404).json({ message: 'Algo anda mal :v' });
         }
+
         //aqui comprobamos si existe algun usuario
         if (users.length > 0) {
             res.send(users);
@@ -23,9 +29,15 @@ export class UserController {
     };
     static getById = async (req: Request, res: Response) => {
         const { id } = req.params;
+        const { userId } = res.locals.jwtPayload;
+
         const userRepository = getRepository(User);
+        let user;
         try {
-            const user = await userRepository.findOneOrFail(id,{select:['id','username','rol','creado','modificado']});
+            user = await userRepository.findOneOrFail(id, {
+                select: ['id', 'username', 'nombre','apellido', 'rol', 'creado', 'modificado'],
+                where: { adminId: userId }
+            });
             res.send(user);
         }
         catch (e) {
@@ -33,19 +45,26 @@ export class UserController {
         }
     };
     static newUser = async (req: Request, res: Response) => {
-        const { username, password, rol } = req.body;
+        const { username, password , nombre, apellido} = req.body;
+        const { userId } = res.locals.jwtPayload;
+
         const user = new User();
-        const fecha=new Date();
+        const fecha = new Date();
+
         user.username = username;
         user.password = password;
-        user.rol = rol;
-        user.resetToken='vacio';
-        user.refreshToken='vacio';
-        user.creado=fecha;
-        user.modificado=fecha;
+        user.rol = "empleado";
+        user.resetToken = 'vacio';
+        user.refreshToken = 'vacio';
+        user.creado = fecha;
+        user.modificado = fecha;
+        user.adminId = userId;
+        user.nombre=nombre;
+        user.apellido=apellido;
+
         //validaciones
         const opcionesValidacion = { validationError: { target: false, value: false } };
-        const errors = await validate(user,opcionesValidacion);
+        const errors = await validate(user, opcionesValidacion);
         if (errors.length > 0) {
             return res.status(404).json(errors);
         }
@@ -56,30 +75,35 @@ export class UserController {
             user.hashPassword();
             await userRepository.save(user);
         }
-        catch (e){
+        catch (e) {
             console.log(e);
             return res.status(409).json({ message: 'El nombre de usuario existe' });
         }
         //si todo esta bien mando un mensaje al front
-        res.send('Usuario creado');
+        res.status(201).json({ message: 'usuario creado' });
+        //res.send('usuario creado');
     };
     static editUser = async (req: Request, res: Response) => {
         let user;
         const { id } = req.params;
         const { username, rol } = req.body;
-        const fecha=new Date();
+        const { userId } = res.locals.jwtPayload;
+
+        const fecha = new Date();
         const userRepository = getRepository(User);
         try {
-            user = await userRepository.findOneOrFail(id);
+            user = await userRepository.findOneOrFail(id, {
+                where: { adminId: userId }
+            });
             user.username = username;
             user.rol = rol;
-            user.modificado=fecha;
+            user.modificado = fecha;
         }
         catch (e) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
         const opcionesValidacion = { validationError: { target: false, value: false } };
-        const errors = await validate(user,opcionesValidacion);
+        const errors = await validate(user, opcionesValidacion);
         if (errors.length > 0) {
             return res.status(400).json(errors);
         }
@@ -95,12 +119,16 @@ export class UserController {
     };
     static deleteUser = async (req: Request, res: Response) => {
         const { id } = req.params;
+        const { userId } = res.locals.jwtPayload;
         const userRepository = getRepository(User);
-        let user: User;
+        let user;
         try {
-            user = await userRepository.findOneOrFail(id);
+            user = await userRepository.find({
+                where: { id: id, adminId: userId }
+            });
         }
         catch (e) {
+            console.log(e);
             return res.status(404).json({ message: 'Usuario no encontrado' })
         }
         //eliminando el usuario
