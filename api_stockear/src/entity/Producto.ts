@@ -1,6 +1,8 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import {User} from './User';
-import {Ingrediente} from './Ingrediente';
+import {Medida} from './Medida';
+import { Categoria } from "./Categoria";
+import { IsNotEmpty } from "class-validator";
 
 @Entity()
 export class Producto{
@@ -8,12 +10,36 @@ export class Producto{
     id:number;
 
     @Column()
+    @IsNotEmpty()
     descripcion:string;
+
+    @Column()
+    @IsNotEmpty()
+    costo:number;
+
+    @Column()
+    @IsNotEmpty()
+    minExistencia:number;
+
+    @Column()
+    @IsNotEmpty()
+    cantidad:number;
+
+    @Column({ type: 'datetime'})
+    creado:Date;
+
+    @Column({ type: 'datetime'})
+    modificado:Date;
 
     @ManyToOne(() => User,(user:User)=>user.productos)
     user:User;
 
-    @ManyToMany(()=>Ingrediente)
-    @JoinTable()
-    ingredientes:Ingrediente[];
+    /* @ManyToOne(() =>Medida,(medida:Medida)=>medida.productos)
+    @IsNotEmpty()
+    medida:Medida; */
+
+    @ManyToOne(() =>Categoria,(categoria:Categoria)=>categoria.productos)
+    @IsNotEmpty()
+    categoria:Categoria;
+
 }

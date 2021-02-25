@@ -11,7 +11,4 @@ export class Ingrediente{
 
     @Column()
     cantidad:number;
-
-    @ManyToOne(()=>Medida,(medida:Medida)=>medida.ingredientes)
-    medida:Medida;
 }

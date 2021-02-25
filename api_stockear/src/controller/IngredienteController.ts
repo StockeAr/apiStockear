@@ -22,7 +22,7 @@ export class IngredienteController{
         const ingrediente=new Ingrediente();
         ingrediente.nombre=nombre;
         ingrediente.cantidad=cantidad;
-        ingrediente.medida=medidaID;
+        //ingrediente.medida=medidaID;
         const ingredienteRepo=getRepository(Ingrediente);
         try{
             await ingredienteRepo.save(ingrediente);

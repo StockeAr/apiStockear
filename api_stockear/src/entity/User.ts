@@ -2,6 +2,11 @@ import { IsNotEmpty, MinLength, IsEmail, isEmail, IsOptional } from "class-valid
 import { Entity, PrimaryGeneratedColumn, Column, Unique, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
 import * as bcrypt from 'bcryptjs';
 import { Producto } from './Producto';
+import { Medida } from "./Medida";
+import { Categoria } from "./Categoria";
+import { Venta } from "./Venta";
+import { Descuento } from "./Descuento";
+import {Recargo} from "./Recargo";
 
 @Entity()
 @Unique(['username'])
@@ -10,11 +15,21 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({unique:true})
     @MinLength(6)
     @IsEmail()
     @IsNotEmpty()
     username: string;
+
+    @Column()
+    @MinLength(3)
+    @IsNotEmpty()
+    nombre:string;
+
+    @Column()
+    @MinLength(3)
+    @IsNotEmpty()
+    apellido:string;
 
     @Column()
     @IsNotEmpty()
@@ -43,8 +58,26 @@ export class User {
     //@UpdateDateColumn()
     modificado: Date;
 
+    @Column()
+    adminId:number;
+
     @OneToMany(() => Producto, (producto: Producto) => producto.user)
     productos: Producto[];
+
+    /* @OneToMany(() =>Medida,(medida: Medida) => medida.user)
+    medidas: Medida[]; */
+
+    @OneToMany(() =>Categoria,(categoria: Categoria) => categoria.user)
+    categorias: Categoria[];
+
+    @OneToMany(() =>Venta,(venta: Venta) =>venta.user)
+    ventas:Venta[];
+
+    @OneToMany(() =>Descuento,(descuento:Descuento)=>descuento.user)
+    descuentos: Descuento[];
+
+    @OneToMany(() =>Recargo,(recargo:Recargo)=>recargo.user)
+    recargos: Recargo[];
 
     hashPassword(): void {
         const salt = bcrypt.genSaltSync(10);
@@ -54,5 +87,4 @@ export class User {
     checkPassword(password: string): boolean {
         return bcrypt.compareSync(password, this.password)
     }
-
 }
