@@ -8,8 +8,6 @@ const router = Router();
 //router.get('/',[checkJwt], VentaController.getAll);
 router.get('/', VentaController.getAll);
 
-router.post('/prueba',[checkJwt,chekRol(['admin'])],VentaController.new);
-
 //Obtener todas las ventas del empleado
 router.get('/empleados', [checkJwt, chekRol(['admin'])], VentaController.getEmpleadosVentas);
 
