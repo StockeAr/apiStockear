@@ -4,6 +4,8 @@ import { Venta } from "./Venta";
 
   @Entity()
   export class VentaProducto{
+
+    /* ignorar esta columna de la tabla venta_producto, pues el ORM no permite crear entidades sin Primary Key, esta de relleno*/
       @PrimaryGeneratedColumn()
       public ventaProducto!:number;
 

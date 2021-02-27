@@ -20,6 +20,9 @@ export class Venta{
     @ManyToOne(()=> User,(user:User)=>user.ventas)
     user:User;
 
+    @OneToMany(()=>VentaProducto,(ventaProducto:VentaProducto)=>ventaProducto.venta)
+    public ventaProducto!:VentaProducto[];
+
     @ManyToMany(()=>Descuento,(descuento:Descuento)=>descuento.ventas)
     @JoinTable()
     descuentos:Descuento[];
@@ -28,7 +31,6 @@ export class Venta{
     @JoinTable()
     recargos:Recargo[];
 
-    @OneToMany(()=>VentaProducto,(ventaProducto:VentaProducto)=>ventaProducto.venta)
-    public ventaProducto!:VentaProducto[];
+    
 
 }
