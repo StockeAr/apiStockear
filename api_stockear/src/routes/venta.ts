@@ -6,7 +6,7 @@ import { checkJwt } from '../middleware/jwt';
 const router = Router();
 //Obtener todas las venta
 //router.get('/',[checkJwt], VentaController.getAll);
-router.get('/', VentaController.getAll);
+router.get('/',[checkJwt], VentaController.getAll);
 
 //Obtener todas las ventas del empleado
 router.get('/empleados', [checkJwt, chekRol(['admin'])], VentaController.getEmpleadosVentas);

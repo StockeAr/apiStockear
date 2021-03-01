@@ -6,28 +6,23 @@ import { Venta } from "../entity/Venta";
 
 export class VentaController {
     static getAll = async (req: Request, res: Response) => {
-        //const { userId } = res.locals.jwtPayload;
+        const { userId } = res.locals.jwtPayload;
         const ventaRepo = getRepository(Venta);
-
         const ventaManager = getManager()
         let venta;
         try {
-            /* venta = await ventaRepo.find({
-                where: { userId: userId },
-                relations: ['producto']
-            }) */
-
-            venta = await ventaManager.query(
-                `select venta.id,venta.productoId, venta.fechaVenta, user.username from venta inner join user on user.id=venta.userId`
-            );
+            venta = await ventaRepo.find({
+                select: ['total', 'fechaVenta', 'id'],
+                where: { user: userId }
+            });
         } catch (e) {
-            res.status(404).json({ message: 'Algo anda mal' });
+            res.status(404).json({ message: 'Algo anda mal', status: 404 });
         }
 
         if (venta.length > 0) {
             res.send(venta);
         } else {
-            res.status(404).json({ message: 'No hubo resultado' });
+            res.status(404).json({ message: 'No hubo resultado', status: 404 });
         }
     };
 
@@ -38,7 +33,7 @@ export class VentaController {
         let empleados;
         let venta;
         let ventaEmpleado = [];
-        let totalVenta = [];
+        //let totalVenta = [];
         try {
             empleados = await userRepo.find({
                 select: ['id'],
@@ -46,24 +41,16 @@ export class VentaController {
             });
             //console.log(JSON.stringify(empleados));
         } catch (e) {
-            res.status(404).json({ message: 'Algo anda mal' });
+            res.status(404).json({ message: 'Algo anda mal 1 ', status: 404});
         }
         try {
             for (let i = 0; i < empleados.length; i++) {
                 venta = await ventaRepo.find({
-                    //select:['precio','fechaVenta','producto','id'],
+                    select:['total','fechaVenta','id'],
                     where: { userId: empleados[i].id },
-                    relations: ['producto', 'user']
                 });
                 ventaEmpleado.push(await venta);
             }
-            /* for(let i = 0; i < empleados.length;i++){
-                venta = await ventaRepo.find({
-                    where: { userId: empleados[i].id },
-                    select:['precio']
-                });
-                totalVenta.push(await venta);
-            } */
 
         } catch (e) {
             console.log(e);
@@ -83,9 +70,11 @@ export class VentaController {
         const { userId } = res.locals.jwtPayload;
         const { idProd, cantidad, adminId } = req.body;
 
+        console.log(userId);
+
         //compruebo si el tamaño de las cantidades es igual al tamaño de los id de productos
         if (idProd.length != cantidad.length) {
-            return res.status(409).json({ message: 'La cantidad de productos no coincide con la cantidad a vender de cada uno' });
+            return res.status(409).json({ message: 'La cantidad de productos no coincide con la cantidad a vender de cada uno', status: 404 });
         }
 
         const prodRepo = getRepository(Producto);
@@ -98,7 +87,7 @@ export class VentaController {
 
                 for (let i = 0; i < idProd.length; i++) {
                     auxMin = await prodRepo.find({
-                        select: ['id', 'minExistencia', 'cantidad', 'descripcion','costo'],
+                        select: ['id', 'minExistencia', 'cantidad', 'descripcion', 'costo'],
                         where: { user: adminId, id: idProd[i] }
                     });
                     if (auxMin.length > 0) {
@@ -108,14 +97,14 @@ export class VentaController {
 
             } catch (e) {
                 console.log('e1 ' + e);
-                return res.status(404).json({ message: 'algo anda mal 1' });
+                return res.status(404).json({ message: 'algo anda mal 1', status: 404 });
             }
         } else {
             try {
 
                 for (let i = 0; i < idProd.length; i++) {
                     auxMin = await prodRepo.find({
-                        select: ['id', 'minExistencia', 'cantidad', 'descripcion','costo'],
+                        select: ['id', 'minExistencia', 'cantidad', 'descripcion', 'costo'],
                         where: { user: userId, id: idProd[i] }
                     });
                     if (auxMin.length > 0) {
@@ -125,48 +114,48 @@ export class VentaController {
 
             } catch (e) {
                 console.log('e2 ' + e);
-                return res.status(404).json({ message: 'algo anda mal 2' });
+                return res.status(404).json({ message: 'algo anda mal 2', status: 404 });
             }
         }
 
         //compruebo si hubo resultado
         if (infoProd.length <= 0 || infoProd.length != idProd.length) {
-            return res.status(404).json({ message: 'algo anda mal 3, compruebe los productos a vender' });
+            return res.status(404).json({ message: 'algo anda mal 3, compruebe los productos a vender', status: 404 });
         }
 
         //compruebo si tengo disponible la cantidad que me solicitan y envio el primero que no concuerde
         for (let i = 0; i < infoProd.length; i++) {
             if (infoProd[i].cantidad < cantidad[i]) {
-                return res.status(404).json({ message: 'cantidad de ' + infoProd[i].descripcion + ' insuficientes' });
+                return res.status(404).json({ message: 'cantidad de ' + infoProd[i].descripcion + ' insuficientes', status: 404 });
             }
         }
 
         const myQuery = getManager();
         const ventaRepo = getRepository(Venta);
-        const venta= new Venta();
-        let idVentaProd=[];
+        const venta = new Venta();
+        let idVentaProd = [];
         let aux;
 
-        let total:number=0;
-        let totalParcial;
-        const fecha= new Date();
+        let total: number = 0;
+        //let totalParcial;
+        const fecha = new Date();
 
         try {
             //obtengo el total de la venta, aun no se aplican descuentos ni recargos
-            for(let i=0;i<idProd.length;i++){
-                total=total+(cantidad[i]*infoProd[i].costo);
+            for (let i = 0; i < idProd.length; i++) {
+                total = total + (cantidad[i] * infoProd[i].costo);
             }
 
             try {
                 //guardo los datos en la tabla venta
-                venta.fechaVenta=fecha;
-                venta.total=total;
-                venta.user=userId;
+                venta.fechaVenta = fecha;
+                venta.total = total;
+                venta.user = userId;
                 await ventaRepo.save(venta);
 
             } catch (e) {
-                console.log('e3: '+e);
-                return res.status(404).json({message:'no se pudo registrar la venta'});
+                console.log('e3: ' + e);
+                return res.status(404).json({ message: 'no se pudo registrar la venta', status: 404 });
             }
 
             /* obtengo el id de venta_producto, en teoria como recien agrege una venta, cuando busque el id maximo,
@@ -176,19 +165,36 @@ export class VentaController {
             //console.log(idVentaProd);
 
             //guardo en la relacion venta_producto; //tengo del body idProd[] y cantidad[]
-            for (let i = 0; i <idProd.length; i++){
-                aux=await myQuery.query(`insert into venta_producto
+            for (let i = 0; i < idProd.length; i++) {
+                aux = await myQuery.query(`insert into venta_producto
                     (productoId, ventaId, cantidad, totalParcial)
                     values (${idProd[i]}, ${idVentaProd}, ${cantidad[i]}, ${infoProd[i].costo * cantidad[i]})
                 `);
             }
 
+            /* realizo una actualizacion de las cantidades de los productos vendidos distinguiendo el rol */
+            if(parseInt(adminId) != 0){
+                for (let i = 0; i < idProd.length; i++){
+                    aux=await myQuery.query(`update producto set 
+                    producto.cantidad=${infoProd[i].cantidad-cantidad[i]}
+                    where producto.id=${infoProd[i].id} and producto.userId=${adminId}
+                    `)
+                }
+            }else{
+                for (let i = 0; i < idProd.length; i++){
+                    aux=await myQuery.query(`update producto set 
+                    producto.cantidad=${infoProd[i].cantidad-cantidad[i]}
+                    where producto.id=${infoProd[i].id} and producto.userId=${userId}
+                    `)
+                }
+            }            
+
         } catch (e) {
-            console.log('e: '+e);
-            return res.status(404).json({ message: 'algo anda mal 4' });
+            console.log('e: ' + e);
+            return res.status(404).json({ message: 'algo anda mal 4', status: 404 });
         }
 
-        res.status(200).json({ message: 'se registro la venta con exito !!!' });
+        res.status(200).json({ message: 'se registro la venta con exito !!!', status: 200 });
     }
 }
 export default VentaController;
