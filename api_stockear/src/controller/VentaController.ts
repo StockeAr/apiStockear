@@ -8,7 +8,7 @@ export class VentaController {
     static getAll = async (req: Request, res: Response) => {
         const { userId } = res.locals.jwtPayload;
         const ventaRepo = getRepository(Venta);
-        const ventaManager = getManager()
+        //const ventaManager = getManager()
         let venta;
         try {
             venta = await ventaRepo.find({
@@ -26,6 +26,29 @@ export class VentaController {
         }
     };
 
+    static getById = async (req: Request, res: Response) => {
+        //const { userId } = res.locals.jwtPayload;
+        const { id } = req.params;
+        const myQuery = getManager();
+        let ventaInfo;
+        try {
+            ventaInfo = await myQuery.query(`select v_p.ventaId, p.descripcion as producto, c.descripcion as categoria,  p.costo, v_p.cantidad, v_p.totalParcial from venta_producto as v_p
+            inner join producto as p
+            on v_p.productoId=p.id
+            inner join categoria as c
+            on p.categoriaId=c.id
+            where v_p.ventaId=${id}`);
+        } catch (e) {
+            return res.status(404).json({message:'algo anda mal 1', status: 404});
+        }
+
+        if(ventaInfo.length > 0){
+            res.send(ventaInfo);
+        }else{
+            return res.status(404).json({ message: 'no hubo resultado', status: 404 });
+        }
+    }
+
     static getEmpleadosVentas = async (req: Request, res: Response) => {
         const { userId } = res.locals.jwtPayload;
         const ventaRepo = getRepository(Venta);
@@ -41,12 +64,12 @@ export class VentaController {
             });
             //console.log(JSON.stringify(empleados));
         } catch (e) {
-            res.status(404).json({ message: 'Algo anda mal 1 ', status: 404});
+            res.status(404).json({ message: 'Algo anda mal 1 ', status: 404 });
         }
         try {
             for (let i = 0; i < empleados.length; i++) {
                 venta = await ventaRepo.find({
-                    select:['total','fechaVenta','id'],
+                    select: ['total', 'fechaVenta', 'id'],
                     where: { userId: empleados[i].id },
                 });
                 ventaEmpleado.push(await venta);
@@ -173,21 +196,21 @@ export class VentaController {
             }
 
             /* realizo una actualizacion de las cantidades de los productos vendidos distinguiendo el rol */
-            if(parseInt(adminId) != 0){
-                for (let i = 0; i < idProd.length; i++){
-                    aux=await myQuery.query(`update producto set 
-                    producto.cantidad=${infoProd[i].cantidad-cantidad[i]}
+            if (parseInt(adminId) != 0) {
+                for (let i = 0; i < idProd.length; i++) {
+                    aux = await myQuery.query(`update producto set 
+                    producto.cantidad=${infoProd[i].cantidad - cantidad[i]}
                     where producto.id=${infoProd[i].id} and producto.userId=${adminId}
                     `)
                 }
-            }else{
-                for (let i = 0; i < idProd.length; i++){
-                    aux=await myQuery.query(`update producto set 
-                    producto.cantidad=${infoProd[i].cantidad-cantidad[i]}
+            } else {
+                for (let i = 0; i < idProd.length; i++) {
+                    aux = await myQuery.query(`update producto set 
+                    producto.cantidad=${infoProd[i].cantidad - cantidad[i]}
                     where producto.id=${infoProd[i].id} and producto.userId=${userId}
                     `)
                 }
-            }            
+            }
 
         } catch (e) {
             console.log('e: ' + e);
