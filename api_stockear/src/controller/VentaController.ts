@@ -93,11 +93,13 @@ export class VentaController {
         const { userId } = res.locals.jwtPayload;
         const { idProd, cantidad, adminId } = req.body;
 
-        console.log(userId);
-
         //compruebo si el tamaño de las cantidades es igual al tamaño de los id de productos
         if (idProd.length != cantidad.length) {
             return res.status(409).json({ message: 'La cantidad de productos no coincide con la cantidad a vender de cada uno', status: 404 });
+        }
+
+        if((idProd.length==0) || (cantidad.length==0)){
+            return res.status(404).json({message:'no envio nada'});
         }
 
         const prodRepo = getRepository(Producto);

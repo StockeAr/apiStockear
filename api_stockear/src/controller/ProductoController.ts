@@ -2,16 +2,36 @@ import { validate } from "class-validator";
 import { Request, Response } from "express";
 import { getRepository } from "typeorm";
 import { Producto } from "../entity/Producto";
+import { User } from "../entity/User";
 
 export class ProductoController{
     static getAll=async(req:Request,res:Response)=>{
         const {userId} =res.locals.jwtPayload;
+
+        const userRepository = getRepository(User);
+        let user;
+        let id;
+        try {
+            user=await userRepository.findOneOrFail({
+                select:['adminId'],
+                where:{id:userId}
+            });
+        } catch (e) {
+            return res.status(404).json({ message:'no se encontro usuario'});
+        }
+        //esto es para comprobar si es admin o emleado (en el ultimo caso identificar el id de su admin)
+        if(user.adminId==0){
+            id=userId;
+        }else{
+            id=user.adminId;
+        }
+        
         const productoRepo=getRepository(Producto);
         let producto;
         try {
             producto=await productoRepo.find({
                 select:['id','descripcion','costo','cantidad','minExistencia'],
-                where:{user:userId},
+                where:{user:id},
                 relations:['categoria']
             })
         } catch (e) {

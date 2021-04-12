@@ -12,7 +12,7 @@ class AuthController {
         //req es lo que nos enviara el front-end
         const { username, password } = req.body;
         if (!(username && password)) {
-            return res.status(404).json({ message: 'Usuario y Contraseña son requeridos' });
+            return res.status(404).json({ message: 'Usuario y Contraseña son requeridos',status:404 });
         }
         const userRepository = getRepository(User);
         let user: User;
@@ -20,12 +20,12 @@ class AuthController {
             user = await userRepository.findOneOrFail({ where: { username:username.toLowerCase() } });
         }
         catch (e) {
-            return res.status(404).json({ message: 'Usuario / Contraseña son incorrectos' });
+            return res.status(409).json({ message: 'Usuario / Contraseña son incorrectos',status:409 });
         }
 
         //verificando la contraseña
         if (!user.checkPassword(password)) {
-            return res.status(400).json({ message: 'Usuario / Contraseña son incorrectos' });
+            return res.status(404).json({ message: 'Usuario / Contraseña son incorrectos', status:404});
         }
         const token = jwt.sign({ userId: user.id, username: user.username }, config.jwtSecret, { expiresIn: '2h' });
         const refreshToken = jwt.sign({ userId: user.id, username: user.username }, config.jwtSecretRefresh, { expiresIn: '2h' });
@@ -40,7 +40,7 @@ class AuthController {
         try {
             await userRepository.save(user);
         } catch (error) {
-            return res.status(400).json({ message: 'algo anda mal' });
+            return res.status(404).json({ message: 'algo anda mal', status:404});
         }
         res.json({ message: 'Ok', token, refreshToken, role, userId, adminId, nombre, apellido });
 
@@ -100,12 +100,11 @@ class AuthController {
         if (password != confirmPassword) {
             return res.status(409).json({ message: 'Las contraseñas no coinciden' });
         }
-        //aqui vamos a realizar el hash para mas seguridad en las contraseñas
 
         const userRepository = getRepository(User);
 
         //console.log('esto guardo: ',user);
-
+        //aqui vamos a realizar el hash para mas seguridad en las contraseñas
         try {
             user.hashPassword();
             await userRepository.save(user);

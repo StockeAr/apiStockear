@@ -20,6 +20,12 @@ createConnection()
         app.use(express.json());
         //Rutas
         app.use('/', routes);
+
+        //
+        app.get("/",(req,res)=>{
+            res.send("Api Stockear")
+        });
+        
         // start express server
         app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

@@ -5,7 +5,7 @@ import { chekRol } from "../middleware/rol";
 
 const router=Router();
 //obtener todos los productos
-router.get('/',[checkJwt, chekRol(['admin'])],ProductoController.getAll);
+router.get('/',[checkJwt],ProductoController.getAll);
 //obtener un producto
 router.get('/:id', [checkJwt, chekRol(['admin'])],ProductoController.getById);
 //crear nuevo producto
