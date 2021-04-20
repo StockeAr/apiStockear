@@ -5,7 +5,6 @@ import { Request, Response } from "express";
 import * as cors from "cors";
 import * as helmet from "helmet";
 import routes from "./routes"
-import router from "./routes/auth";
 const PORT = process.env.PORT || 3000;
 
 createConnection()
@@ -22,10 +21,10 @@ createConnection()
         app.use('/', routes);
 
         //
-        app.get("/",(req,res)=>{
+        app.get("/", (req, res) => {
             res.send("Api Stockear")
         });
-        
+
         // start express server
         app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
