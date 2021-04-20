@@ -1,6 +1,6 @@
 module.exports = {
    "type": "mysql",
-   "host": "@us-cdbr-east-02.cleardb.com",
+   "host": "mysql://@us-cdbr-east-02.cleardb.com",
    "port": 3306,
    "username": "b55f79f71151d2",
    "password": "0d901c23",
