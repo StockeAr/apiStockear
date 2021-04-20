@@ -4,7 +4,7 @@ module.exports = {
    "port": 3306,
    "username": "b55f79f71151d2",
    "password": "0d901c23",
-   "database": "heroku_b8b9f13ef66c1bf	",
+   "database": "heroku_b8b9f13ef66c1bf",
    "synchronize": true,
    "logging": false,
    "entities": [
