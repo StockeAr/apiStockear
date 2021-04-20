@@ -79,7 +79,6 @@ var IngredienteController = /** @class */ (function () {
                     ingrediente = new Ingrediente_1.Ingrediente();
                     ingrediente.nombre = nombre;
                     ingrediente.cantidad = cantidad;
-                    ingrediente.medida = medidaID;
                     ingredienteRepo = typeorm_1.getRepository(Ingrediente_1.Ingrediente);
                     _c.label = 1;
                 case 1:
@@ -97,7 +96,41 @@ var IngredienteController = /** @class */ (function () {
             }
         });
     }); };
+    IngredienteController.info = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var ingreRepo, ingre, e_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    ingreRepo = typeorm_1.getRepository(Ingrediente_1.Ingrediente);
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ingreRepo.find({
+                            join: {
+                                alias: 'ingrediente',
+                                innerJoinAndSelect: {
+                                    medida: 'ingrediente.medida',
+                                }
+                            },
+                            order: {
+                                nombre: 'ASC'
+                            }
+                        })];
+                case 2:
+                    ingre = _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    e_2 = _a.sent();
+                    res.status(404).json({ message: 'algo anda mal' });
+                    return [3 /*break*/, 4];
+                case 4:
+                    res.send(ingre);
+                    return [2 /*return*/];
+            }
+        });
+    }); };
     return IngredienteController;
 }());
 exports.IngredienteController = IngredienteController;
+exports.default = IngredienteController;
 //# sourceMappingURL=IngredienteController.js.map

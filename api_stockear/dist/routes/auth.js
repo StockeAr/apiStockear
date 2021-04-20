@@ -14,5 +14,7 @@ router.put('/new-password', AuthController_1.default.createNewPassword);
 router.post('/refresh-token', AuthController_1.default.refreshToken);
 //cambiar la contraseña, para ademas restringir sola al admin, se debe importar el checkRol
 router.post('/change-password', [jwt_1.checkJwt], AuthController_1.default.changePassword);
+//registrarse
+router.post('/register', AuthController_1.default.newAdmin);
 exports.default = router;
 //# sourceMappingURL=auth.js.map

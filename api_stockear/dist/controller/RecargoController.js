@@ -36,148 +36,135 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserController = void 0;
-var typeorm_1 = require("typeorm");
-var User_1 = require("../entity/User");
+exports.RecargoController = void 0;
 var class_validator_1 = require("class-validator");
-var UserController = /** @class */ (function () {
-    function UserController() {
+var typeorm_1 = require("typeorm");
+var Recargo_1 = require("../entity/Recargo");
+var RecargoController = /** @class */ (function () {
+    function RecargoController() {
     }
-    //Obtener todos los usuarios
-    UserController.getAll = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var userId, userRepository, users, e_1;
+    RecargoController.getAll = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var userId, recargoRepo, recargo, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     userId = res.locals.jwtPayload.userId;
-                    userRepository = typeorm_1.getRepository(User_1.User);
+                    recargoRepo = typeorm_1.getRepository(Recargo_1.Recargo);
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepository.find({
-                            select: ['id', 'username', 'nombre', 'apellido', 'rol', 'modificado'],
-                            where: { adminId: userId }
+                    return [4 /*yield*/, recargoRepo.find({
+                            where: { user: userId }
                         })];
                 case 2:
-                    users = _a.sent();
+                    recargo = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
                     e_1 = _a.sent();
-                    res.status(404).json({ message: 'Algo anda mal :v' });
+                    res.status(404).json({ message: 'Algo anda mal' });
                     return [3 /*break*/, 4];
                 case 4:
-                    //aqui comprobamos si existe algun usuario
-                    if (users.length > 0) {
-                        res.send(users);
+                    if (recargo.length > 0) {
+                        res.send(recargo);
                     }
                     else {
-                        res.status(404).json({ message: 'No Hubo resultado' });
+                        res.status(404).json({ message: 'No hubo resultado' });
                     }
                     return [2 /*return*/];
             }
         });
     }); };
-    UserController.getById = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var id, userId, userRepository, user, e_2;
+    RecargoController.getById = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var id, userId, recargoRepo, recargo, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     id = req.params.id;
                     userId = res.locals.jwtPayload.userId;
-                    userRepository = typeorm_1.getRepository(User_1.User);
+                    recargoRepo = typeorm_1.getRepository(Recargo_1.Recargo);
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepository.findOneOrFail(id, {
-                            select: ['id', 'username', 'nombre', 'apellido', 'rol', 'creado', 'modificado'],
-                            where: { adminId: userId }
+                    return [4 /*yield*/, recargoRepo.findOneOrFail(id, {
+                            select: ['id', 'descripcion', 'monto', 'tipo'],
+                            where: { user: userId }
                         })];
                 case 2:
-                    user = _a.sent();
-                    res.send(user);
+                    recargo = _a.sent();
+                    res.send(recargo);
                     return [3 /*break*/, 4];
                 case 3:
-                    e_2 = _a.sent();
+                    error_1 = _a.sent();
                     res.status(404).json({ message: 'No hubo resultado' });
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
             }
         });
     }); };
-    UserController.newUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, username, password, nombre, apellido, userId, user, fecha, opcionesValidacion, errors, userRepository, e_3;
+    RecargoController.newRecargo = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var _a, descripcion, monto, tipo, userId, recargo, opcionesValidacion, errors, recargoRepo, e_2;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _a = req.body, username = _a.username, password = _a.password, nombre = _a.nombre, apellido = _a.apellido;
+                    _a = req.body, descripcion = _a.descripcion, monto = _a.monto, tipo = _a.tipo;
                     userId = res.locals.jwtPayload.userId;
-                    user = new User_1.User();
-                    fecha = new Date();
-                    user.username = username;
-                    user.password = password;
-                    user.rol = "empleado";
-                    user.resetToken = 'vacio';
-                    user.refreshToken = 'vacio';
-                    user.creado = fecha;
-                    user.modificado = fecha;
-                    user.adminId = userId;
-                    user.nombre = nombre;
-                    user.apellido = apellido;
+                    recargo = new Recargo_1.Recargo();
+                    recargo.descripcion = descripcion;
+                    recargo.user = userId;
+                    recargo.monto = monto;
+                    recargo.tipo = tipo;
                     opcionesValidacion = { validationError: { target: false, value: false } };
-                    return [4 /*yield*/, class_validator_1.validate(user, opcionesValidacion)];
+                    return [4 /*yield*/, class_validator_1.validate(recargo, opcionesValidacion)];
                 case 1:
                     errors = _b.sent();
                     if (errors.length > 0) {
                         return [2 /*return*/, res.status(404).json(errors)];
                     }
-                    userRepository = typeorm_1.getRepository(User_1.User);
+                    recargoRepo = typeorm_1.getRepository(Recargo_1.Recargo);
                     _b.label = 2;
                 case 2:
                     _b.trys.push([2, 4, , 5]);
-                    user.hashPassword();
-                    return [4 /*yield*/, userRepository.save(user)];
+                    return [4 /*yield*/, recargoRepo.save(recargo)];
                 case 3:
                     _b.sent();
                     return [3 /*break*/, 5];
                 case 4:
-                    e_3 = _b.sent();
-                    console.log(e_3);
-                    return [2 /*return*/, res.status(409).json({ message: 'El nombre de usuario existe' })];
+                    e_2 = _b.sent();
+                    console.log(e_2);
+                    return [2 /*return*/, res.status(404).json({ message: 'algo salio mal' })];
                 case 5:
-                    //si todo esta bien mando un mensaje al front
-                    res.status(201).json({ message: 'usuario creado' });
+                    res.status(201).json({ message: 'recargo Agregado' });
                     return [2 /*return*/];
             }
         });
     }); };
-    UserController.editUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var user, id, _a, username, rol, userId, fecha, userRepository, e_4, opcionesValidacion, errors, e_5;
+    RecargoController.editRecargo = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var recargo, id, _a, descripcion, monto, tipo, userId, recargoRepo, e_3, opcionesValidacion, errors, e_4;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     id = req.params.id;
-                    _a = req.body, username = _a.username, rol = _a.rol;
+                    _a = req.body, descripcion = _a.descripcion, monto = _a.monto, tipo = _a.tipo;
                     userId = res.locals.jwtPayload.userId;
-                    fecha = new Date();
-                    userRepository = typeorm_1.getRepository(User_1.User);
+                    recargoRepo = typeorm_1.getRepository(Recargo_1.Recargo);
                     _b.label = 1;
                 case 1:
                     _b.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepository.findOneOrFail(id, {
-                            where: { adminId: userId }
+                    return [4 /*yield*/, recargoRepo.findOneOrFail(id, {
+                            where: { user: userId }
                         })];
                 case 2:
-                    user = _b.sent();
-                    user.username = username;
-                    user.rol = rol;
-                    user.modificado = fecha;
+                    recargo = _b.sent();
+                    recargo.descripcion = descripcion;
+                    recargo.monto = monto;
+                    recargo.tipo = tipo;
                     return [3 /*break*/, 4];
                 case 3:
-                    e_4 = _b.sent();
-                    return [2 /*return*/, res.status(404).json({ message: 'Usuario no encontrado' })];
+                    e_3 = _b.sent();
+                    return [2 /*return*/, res.status(404).json({ message: 'categoria no encontrada' })];
                 case 4:
                     opcionesValidacion = { validationError: { target: false, value: false } };
-                    return [4 /*yield*/, class_validator_1.validate(user, opcionesValidacion)];
+                    return [4 /*yield*/, class_validator_1.validate(recargo, opcionesValidacion)];
                 case 5:
                     errors = _b.sent();
                     if (errors.length > 0) {
@@ -186,50 +173,49 @@ var UserController = /** @class */ (function () {
                     _b.label = 6;
                 case 6:
                     _b.trys.push([6, 8, , 9]);
-                    return [4 /*yield*/, userRepository.save(user)];
+                    return [4 /*yield*/, recargoRepo.save(recargo)];
                 case 7:
                     _b.sent();
                     return [3 /*break*/, 9];
                 case 8:
-                    e_5 = _b.sent();
-                    return [2 /*return*/, res.status(409).json({ message: 'El usuario esta en uso' })];
+                    e_4 = _b.sent();
+                    return [2 /*return*/, res.status(409).json({ message: 'El nombre del recargo ya esta en uso' })];
                 case 9:
-                    res.status(201).json({ message: 'usuario se ha modificado' });
+                    res.status(201).json({ message: 'recargo editado' });
                     return [2 /*return*/];
             }
         });
     }); };
-    UserController.deleteUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var id, userId, userRepository, user, e_6;
+    RecargoController.deleteRecargo = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var id, adminId, recargoRepo, recargo, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     id = req.params.id;
-                    userId = res.locals.jwtPayload.userId;
-                    userRepository = typeorm_1.getRepository(User_1.User);
+                    adminId = res.locals.jwtPayload.adminId;
+                    recargoRepo = typeorm_1.getRepository(Recargo_1.Recargo);
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepository.find({
-                            where: { id: id, adminId: userId }
+                    return [4 /*yield*/, recargoRepo.find({
+                            where: { user: adminId, id: id }
                         })];
                 case 2:
-                    user = _a.sent();
+                    recargo = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    e_6 = _a.sent();
-                    console.log(e_6);
-                    return [2 /*return*/, res.status(404).json({ message: 'Usuario no encontrado' })];
+                    err_1 = _a.sent();
+                    console.log(err_1);
+                    return [2 /*return*/, res.status(404).json({ message: 'recargo no encontrado' })];
                 case 4:
-                    //eliminando el usuario
-                    userRepository.delete(id);
-                    res.status(201).json({ message: 'Usuario eliminado' });
+                    //eliminando categoria para
+                    recargoRepo.delete(id);
+                    res.status(201).json({ message: 'recargo eliminado' });
                     return [2 /*return*/];
             }
         });
     }); };
-    return UserController;
+    return RecargoController;
 }());
-exports.UserController = UserController;
-exports.default = UserController;
-//# sourceMappingURL=UserController.js.map
+exports.RecargoController = RecargoController;
+//# sourceMappingURL=RecargoController.js.map

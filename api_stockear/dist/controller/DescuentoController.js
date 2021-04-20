@@ -36,148 +36,135 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserController = void 0;
-var typeorm_1 = require("typeorm");
-var User_1 = require("../entity/User");
+exports.DescuentoController = void 0;
 var class_validator_1 = require("class-validator");
-var UserController = /** @class */ (function () {
-    function UserController() {
+var typeorm_1 = require("typeorm");
+var Descuento_1 = require("../entity/Descuento");
+var DescuentoController = /** @class */ (function () {
+    function DescuentoController() {
     }
-    //Obtener todos los usuarios
-    UserController.getAll = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var userId, userRepository, users, e_1;
+    DescuentoController.getAll = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var userId, descuentoRepo, descuento, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     userId = res.locals.jwtPayload.userId;
-                    userRepository = typeorm_1.getRepository(User_1.User);
+                    descuentoRepo = typeorm_1.getRepository(Descuento_1.Descuento);
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepository.find({
-                            select: ['id', 'username', 'nombre', 'apellido', 'rol', 'modificado'],
-                            where: { adminId: userId }
+                    return [4 /*yield*/, descuentoRepo.find({
+                            where: { user: userId }
                         })];
                 case 2:
-                    users = _a.sent();
+                    descuento = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
                     e_1 = _a.sent();
-                    res.status(404).json({ message: 'Algo anda mal :v' });
+                    res.status(404).json({ message: 'Algo anda mal' });
                     return [3 /*break*/, 4];
                 case 4:
-                    //aqui comprobamos si existe algun usuario
-                    if (users.length > 0) {
-                        res.send(users);
+                    if (descuento.length > 0) {
+                        res.send(descuento);
                     }
                     else {
-                        res.status(404).json({ message: 'No Hubo resultado' });
+                        res.status(404).json({ message: 'No hubo resultado' });
                     }
                     return [2 /*return*/];
             }
         });
     }); };
-    UserController.getById = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var id, userId, userRepository, user, e_2;
+    DescuentoController.getById = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var id, userId, descuentoRepo, descuento, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     id = req.params.id;
                     userId = res.locals.jwtPayload.userId;
-                    userRepository = typeorm_1.getRepository(User_1.User);
+                    descuentoRepo = typeorm_1.getRepository(Descuento_1.Descuento);
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepository.findOneOrFail(id, {
-                            select: ['id', 'username', 'nombre', 'apellido', 'rol', 'creado', 'modificado'],
-                            where: { adminId: userId }
+                    return [4 /*yield*/, descuentoRepo.findOneOrFail(id, {
+                            select: ['id', 'descripcion', 'monto', 'tipo'],
+                            where: { user: userId }
                         })];
                 case 2:
-                    user = _a.sent();
-                    res.send(user);
+                    descuento = _a.sent();
+                    res.send(descuento);
                     return [3 /*break*/, 4];
                 case 3:
-                    e_2 = _a.sent();
+                    error_1 = _a.sent();
                     res.status(404).json({ message: 'No hubo resultado' });
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
             }
         });
     }); };
-    UserController.newUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, username, password, nombre, apellido, userId, user, fecha, opcionesValidacion, errors, userRepository, e_3;
+    DescuentoController.newDescuento = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var _a, descripcion, monto, tipo, userId, descuento, opcionesValidacion, errors, descuentoRepo, e_2;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _a = req.body, username = _a.username, password = _a.password, nombre = _a.nombre, apellido = _a.apellido;
+                    _a = req.body, descripcion = _a.descripcion, monto = _a.monto, tipo = _a.tipo;
                     userId = res.locals.jwtPayload.userId;
-                    user = new User_1.User();
-                    fecha = new Date();
-                    user.username = username;
-                    user.password = password;
-                    user.rol = "empleado";
-                    user.resetToken = 'vacio';
-                    user.refreshToken = 'vacio';
-                    user.creado = fecha;
-                    user.modificado = fecha;
-                    user.adminId = userId;
-                    user.nombre = nombre;
-                    user.apellido = apellido;
+                    descuento = new Descuento_1.Descuento();
+                    descuento.descripcion = descripcion;
+                    descuento.user = userId;
+                    descuento.monto = monto;
+                    descuento.tipo = tipo;
                     opcionesValidacion = { validationError: { target: false, value: false } };
-                    return [4 /*yield*/, class_validator_1.validate(user, opcionesValidacion)];
+                    return [4 /*yield*/, class_validator_1.validate(descuento, opcionesValidacion)];
                 case 1:
                     errors = _b.sent();
                     if (errors.length > 0) {
                         return [2 /*return*/, res.status(404).json(errors)];
                     }
-                    userRepository = typeorm_1.getRepository(User_1.User);
+                    descuentoRepo = typeorm_1.getRepository(Descuento_1.Descuento);
                     _b.label = 2;
                 case 2:
                     _b.trys.push([2, 4, , 5]);
-                    user.hashPassword();
-                    return [4 /*yield*/, userRepository.save(user)];
+                    return [4 /*yield*/, descuentoRepo.save(descuento)];
                 case 3:
                     _b.sent();
                     return [3 /*break*/, 5];
                 case 4:
-                    e_3 = _b.sent();
-                    console.log(e_3);
-                    return [2 /*return*/, res.status(409).json({ message: 'El nombre de usuario existe' })];
+                    e_2 = _b.sent();
+                    console.log(e_2);
+                    return [2 /*return*/, res.status(404).json({ message: 'algo salio mal' })];
                 case 5:
-                    //si todo esta bien mando un mensaje al front
-                    res.status(201).json({ message: 'usuario creado' });
+                    res.status(201).json({ message: 'descuento Agregado' });
                     return [2 /*return*/];
             }
         });
     }); };
-    UserController.editUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var user, id, _a, username, rol, userId, fecha, userRepository, e_4, opcionesValidacion, errors, e_5;
+    DescuentoController.editDescuento = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var descuento, id, _a, descripcion, monto, tipo, userId, descuentoRepo, e_3, opcionesValidacion, errors, e_4;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     id = req.params.id;
-                    _a = req.body, username = _a.username, rol = _a.rol;
+                    _a = req.body, descripcion = _a.descripcion, monto = _a.monto, tipo = _a.tipo;
                     userId = res.locals.jwtPayload.userId;
-                    fecha = new Date();
-                    userRepository = typeorm_1.getRepository(User_1.User);
+                    descuentoRepo = typeorm_1.getRepository(Descuento_1.Descuento);
                     _b.label = 1;
                 case 1:
                     _b.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepository.findOneOrFail(id, {
-                            where: { adminId: userId }
+                    return [4 /*yield*/, descuentoRepo.findOneOrFail(id, {
+                            where: { user: userId }
                         })];
                 case 2:
-                    user = _b.sent();
-                    user.username = username;
-                    user.rol = rol;
-                    user.modificado = fecha;
+                    descuento = _b.sent();
+                    descuento.descripcion = descripcion;
+                    descuento.monto = monto;
+                    descuento.tipo = tipo;
                     return [3 /*break*/, 4];
                 case 3:
-                    e_4 = _b.sent();
-                    return [2 /*return*/, res.status(404).json({ message: 'Usuario no encontrado' })];
+                    e_3 = _b.sent();
+                    return [2 /*return*/, res.status(404).json({ message: 'categoria no encontrada' })];
                 case 4:
                     opcionesValidacion = { validationError: { target: false, value: false } };
-                    return [4 /*yield*/, class_validator_1.validate(user, opcionesValidacion)];
+                    return [4 /*yield*/, class_validator_1.validate(descuento, opcionesValidacion)];
                 case 5:
                     errors = _b.sent();
                     if (errors.length > 0) {
@@ -186,50 +173,49 @@ var UserController = /** @class */ (function () {
                     _b.label = 6;
                 case 6:
                     _b.trys.push([6, 8, , 9]);
-                    return [4 /*yield*/, userRepository.save(user)];
+                    return [4 /*yield*/, descuentoRepo.save(descuento)];
                 case 7:
                     _b.sent();
                     return [3 /*break*/, 9];
                 case 8:
-                    e_5 = _b.sent();
-                    return [2 /*return*/, res.status(409).json({ message: 'El usuario esta en uso' })];
+                    e_4 = _b.sent();
+                    return [2 /*return*/, res.status(409).json({ message: 'El nombre del descuento ya esta en uso' })];
                 case 9:
-                    res.status(201).json({ message: 'usuario se ha modificado' });
+                    res.status(201).json({ message: 'descuento editado' });
                     return [2 /*return*/];
             }
         });
     }); };
-    UserController.deleteUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var id, userId, userRepository, user, e_6;
+    DescuentoController.deleteDescuento = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var id, adminId, descuentoRepo, descuento, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     id = req.params.id;
-                    userId = res.locals.jwtPayload.userId;
-                    userRepository = typeorm_1.getRepository(User_1.User);
+                    adminId = res.locals.jwtPayload.adminId;
+                    descuentoRepo = typeorm_1.getRepository(Descuento_1.Descuento);
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepository.find({
-                            where: { id: id, adminId: userId }
+                    return [4 /*yield*/, descuentoRepo.find({
+                            where: { user: adminId, id: id }
                         })];
                 case 2:
-                    user = _a.sent();
+                    descuento = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    e_6 = _a.sent();
-                    console.log(e_6);
-                    return [2 /*return*/, res.status(404).json({ message: 'Usuario no encontrado' })];
+                    err_1 = _a.sent();
+                    console.log(err_1);
+                    return [2 /*return*/, res.status(404).json({ message: 'descuento no encontrado' })];
                 case 4:
-                    //eliminando el usuario
-                    userRepository.delete(id);
-                    res.status(201).json({ message: 'Usuario eliminado' });
+                    //eliminando categoria para
+                    descuentoRepo.delete(id);
+                    res.status(201).json({ message: 'descuento eliminado' });
                     return [2 /*return*/];
             }
         });
     }); };
-    return UserController;
+    return DescuentoController;
 }());
-exports.UserController = UserController;
-exports.default = UserController;
-//# sourceMappingURL=UserController.js.map
+exports.DescuentoController = DescuentoController;
+//# sourceMappingURL=DescuentoController.js.map

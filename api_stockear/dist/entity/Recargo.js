@@ -9,25 +9,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Medida = void 0;
+exports.Recargo = void 0;
 var class_validator_1 = require("class-validator");
 var typeorm_1 = require("typeorm");
-var Medida = /** @class */ (function () {
-    function Medida() {
+var User_1 = require("./User");
+var Venta_1 = require("./Venta");
+var Recargo = /** @class */ (function () {
+    function Recargo() {
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn(),
         __metadata("design:type", Number)
-    ], Medida.prototype, "id", void 0);
+    ], Recargo.prototype, "id", void 0);
     __decorate([
         typeorm_1.Column(),
         class_validator_1.IsNotEmpty(),
         __metadata("design:type", String)
-    ], Medida.prototype, "descripcion", void 0);
-    Medida = __decorate([
+    ], Recargo.prototype, "descripcion", void 0);
+    __decorate([
+        typeorm_1.Column(),
+        class_validator_1.IsNotEmpty(),
+        __metadata("design:type", Number)
+    ], Recargo.prototype, "monto", void 0);
+    __decorate([
+        typeorm_1.Column(),
+        class_validator_1.IsNotEmpty(),
+        __metadata("design:type", String)
+    ], Recargo.prototype, "tipo", void 0);
+    __decorate([
+        typeorm_1.ManyToOne(function () { return User_1.User; }, function (user) { return user.recargos; }),
+        __metadata("design:type", User_1.User)
+    ], Recargo.prototype, "user", void 0);
+    __decorate([
+        typeorm_1.ManyToMany(function () { return Venta_1.Venta; }, function (venta) { return venta.recargos; }),
+        __metadata("design:type", Array)
+    ], Recargo.prototype, "ventas", void 0);
+    Recargo = __decorate([
         typeorm_1.Entity()
-    ], Medida);
-    return Medida;
+    ], Recargo);
+    return Recargo;
 }());
-exports.Medida = Medida;
-//# sourceMappingURL=Medida.js.map
+exports.Recargo = Recargo;
+//# sourceMappingURL=Recargo.js.map

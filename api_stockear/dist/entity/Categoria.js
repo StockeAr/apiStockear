@@ -9,27 +9,35 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Ingrediente = void 0;
+exports.Categoria = void 0;
+var class_validator_1 = require("class-validator");
 var typeorm_1 = require("typeorm");
-var Ingrediente = /** @class */ (function () {
-    function Ingrediente() {
+var Producto_1 = require("./Producto");
+var User_1 = require("./User");
+var Categoria = /** @class */ (function () {
+    function Categoria() {
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn(),
         __metadata("design:type", Number)
-    ], Ingrediente.prototype, "id", void 0);
-    __decorate([
-        typeorm_1.Column({ nullable: true }),
-        __metadata("design:type", String)
-    ], Ingrediente.prototype, "nombre", void 0);
+    ], Categoria.prototype, "id", void 0);
     __decorate([
         typeorm_1.Column(),
-        __metadata("design:type", Number)
-    ], Ingrediente.prototype, "cantidad", void 0);
-    Ingrediente = __decorate([
+        class_validator_1.IsNotEmpty(),
+        __metadata("design:type", String)
+    ], Categoria.prototype, "descripcion", void 0);
+    __decorate([
+        typeorm_1.OneToMany(function () { return Producto_1.Producto; }, function (producto) { return producto.categoria; }),
+        __metadata("design:type", Array)
+    ], Categoria.prototype, "productos", void 0);
+    __decorate([
+        typeorm_1.ManyToOne(function () { return User_1.User; }, function (user) { return user.categorias; }),
+        __metadata("design:type", User_1.User)
+    ], Categoria.prototype, "user", void 0);
+    Categoria = __decorate([
         typeorm_1.Entity()
-    ], Ingrediente);
-    return Ingrediente;
+    ], Categoria);
+    return Categoria;
 }());
-exports.Ingrediente = Ingrediente;
-//# sourceMappingURL=Ingrediente.js.map
+exports.Categoria = Categoria;
+//# sourceMappingURL=Categoria.js.map

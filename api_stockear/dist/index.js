@@ -54,6 +54,10 @@ typeorm_1.createConnection()
         app.use(express.json());
         //Rutas
         app.use('/', routes_1.default);
+        //
+        app.get("/", function (req, res) {
+            res.send("Api Stockear");
+        });
         // start express server
         app.listen(PORT, function () { return console.log("Server running on port " + PORT); });
         return [2 /*return*/];

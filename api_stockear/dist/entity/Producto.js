@@ -12,7 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Producto = void 0;
 var typeorm_1 = require("typeorm");
 var User_1 = require("./User");
-var Ingrediente_1 = require("./Ingrediente");
+var Categoria_1 = require("./Categoria");
+var class_validator_1 = require("class-validator");
+var VentaProducto_1 = require("./VentaProducto");
 var Producto = /** @class */ (function () {
     function Producto() {
     }
@@ -22,17 +24,45 @@ var Producto = /** @class */ (function () {
     ], Producto.prototype, "id", void 0);
     __decorate([
         typeorm_1.Column(),
+        class_validator_1.IsNotEmpty(),
         __metadata("design:type", String)
     ], Producto.prototype, "descripcion", void 0);
+    __decorate([
+        typeorm_1.Column(),
+        class_validator_1.IsNotEmpty(),
+        __metadata("design:type", Number)
+    ], Producto.prototype, "costo", void 0);
+    __decorate([
+        typeorm_1.Column(),
+        class_validator_1.IsNotEmpty(),
+        __metadata("design:type", Number)
+    ], Producto.prototype, "minExistencia", void 0);
+    __decorate([
+        typeorm_1.Column(),
+        class_validator_1.IsNotEmpty(),
+        __metadata("design:type", Number)
+    ], Producto.prototype, "cantidad", void 0);
+    __decorate([
+        typeorm_1.Column({ type: 'datetime' }),
+        __metadata("design:type", Date)
+    ], Producto.prototype, "creado", void 0);
+    __decorate([
+        typeorm_1.Column({ type: 'datetime' }),
+        __metadata("design:type", Date)
+    ], Producto.prototype, "modificado", void 0);
     __decorate([
         typeorm_1.ManyToOne(function () { return User_1.User; }, function (user) { return user.productos; }),
         __metadata("design:type", User_1.User)
     ], Producto.prototype, "user", void 0);
     __decorate([
-        typeorm_1.ManyToMany(function () { return Ingrediente_1.Ingrediente; }),
-        typeorm_1.JoinTable(),
+        typeorm_1.ManyToOne(function () { return Categoria_1.Categoria; }, function (categoria) { return categoria.productos; }),
+        class_validator_1.IsNotEmpty(),
+        __metadata("design:type", Categoria_1.Categoria)
+    ], Producto.prototype, "categoria", void 0);
+    __decorate([
+        typeorm_1.OneToMany(function () { return VentaProducto_1.VentaProducto; }, function (ventaProducto) { return ventaProducto.producto; }),
         __metadata("design:type", Array)
-    ], Producto.prototype, "ingredientes", void 0);
+    ], Producto.prototype, "ventaProducto", void 0);
     Producto = __decorate([
         typeorm_1.Entity()
     ], Producto);

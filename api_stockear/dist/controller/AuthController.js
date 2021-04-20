@@ -46,34 +46,37 @@ var AuthController = /** @class */ (function () {
     function AuthController() {
     }
     AuthController.login = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, username, password, userRepository, user, e_1, token, refreshToken, role, userId, error_1;
+        var _a, username, password, userRepository, user, e_1, token, refreshToken, role, userId, adminId, nombre, apellido, error_1;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _a = req.body, username = _a.username, password = _a.password;
                     if (!(username && password)) {
-                        return [2 /*return*/, res.status(404).json({ message: 'Usuario y Contraseña son requeridos' })];
+                        return [2 /*return*/, res.status(404).json({ message: 'Usuario y Contraseña son requeridos', status: 404 })];
                     }
                     userRepository = typeorm_1.getRepository(User_1.User);
                     _b.label = 1;
                 case 1:
                     _b.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepository.findOneOrFail({ where: { username: username } })];
+                    return [4 /*yield*/, userRepository.findOneOrFail({ where: { username: username.toLowerCase() } })];
                 case 2:
                     user = _b.sent();
                     return [3 /*break*/, 4];
                 case 3:
                     e_1 = _b.sent();
-                    return [2 /*return*/, res.status(404).json({ message: 'Usuario / Contraseña son incorrectos' })];
+                    return [2 /*return*/, res.status(409).json({ message: 'Usuario / Contraseña son incorrectos', status: 409 })];
                 case 4:
                     //verificando la contraseña
                     if (!user.checkPassword(password)) {
-                        return [2 /*return*/, res.status(400).json({ message: 'Usuario / Contraseña son incorrectos' })];
+                        return [2 /*return*/, res.status(404).json({ message: 'Usuario / Contraseña son incorrectos', status: 404 })];
                     }
-                    token = jwt.sign({ userId: user.id, username: user.username }, config_1.default.jwtSecret, { expiresIn: '30m' });
-                    refreshToken = jwt.sign({ userId: user.id, username: user.username }, config_1.default.jwtSecretRefresh, { expiresIn: '30m' });
+                    token = jwt.sign({ userId: user.id, username: user.username }, config_1.default.jwtSecret, { expiresIn: '2h' });
+                    refreshToken = jwt.sign({ userId: user.id, username: user.username }, config_1.default.jwtSecretRefresh, { expiresIn: '2h' });
                     role = user.rol;
                     userId = user.id;
+                    adminId = user.adminId;
+                    nombre = user.nombre;
+                    apellido = user.apellido;
                     user.refreshToken = refreshToken;
                     _b.label = 5;
                 case 5:
@@ -84,9 +87,9 @@ var AuthController = /** @class */ (function () {
                     return [3 /*break*/, 8];
                 case 7:
                     error_1 = _b.sent();
-                    return [2 /*return*/, res.status(400).json({ message: 'algo anda mal' })];
+                    return [2 /*return*/, res.status(404).json({ message: 'algo anda mal', status: 404 })];
                 case 8:
-                    res.json({ message: 'Ok', token: token, refreshToken: refreshToken, role: role /* , userId */ });
+                    res.json({ message: 'Ok', token: token, refreshToken: refreshToken, role: role, userId: userId, adminId: adminId, nombre: nombre, apellido: apellido });
                     return [2 /*return*/];
             }
         });
@@ -133,8 +136,56 @@ var AuthController = /** @class */ (function () {
             }
         });
     }); };
+    AuthController.newAdmin = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var _a, username, password, nombre, apellido, confirmPassword, user, fecha, opcionesValidacion, errors, userRepository, e_3;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _a = req.body, username = _a.username, password = _a.password, nombre = _a.nombre, apellido = _a.apellido, confirmPassword = _a.confirmPassword;
+                    user = new User_1.User();
+                    fecha = new Date();
+                    user.username = username.toLowerCase();
+                    user.password = password;
+                    user.rol = 'admin';
+                    user.resetToken = 'vacio';
+                    user.refreshToken = 'vacio';
+                    user.creado = fecha;
+                    user.modificado = fecha;
+                    user.adminId = 0;
+                    user.nombre = nombre;
+                    user.apellido = apellido;
+                    opcionesValidacion = { validationError: { target: false, value: false } };
+                    return [4 /*yield*/, class_validator_1.validate(user, opcionesValidacion)];
+                case 1:
+                    errors = _b.sent();
+                    if (errors.length > 0) {
+                        return [2 /*return*/, res.status(404).json({ message: errors })];
+                    }
+                    if (password != confirmPassword) {
+                        return [2 /*return*/, res.status(409).json({ message: 'Las contraseñas no coinciden' })];
+                    }
+                    userRepository = typeorm_1.getRepository(User_1.User);
+                    _b.label = 2;
+                case 2:
+                    _b.trys.push([2, 4, , 5]);
+                    user.hashPassword();
+                    return [4 /*yield*/, userRepository.save(user)];
+                case 3:
+                    _b.sent();
+                    return [3 /*break*/, 5];
+                case 4:
+                    e_3 = _b.sent();
+                    console.log(e_3);
+                    return [2 /*return*/, res.status(409).json({ message: 'Este usuario ya esta registrado' })];
+                case 5:
+                    //si todo esta bien mando un mensaje al front
+                    res.status(201).json({ message: 'Registro exitoso' });
+                    return [2 /*return*/];
+            }
+        });
+    }); };
     AuthController.forgotPassword = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var username, message, verificationLink, emailStatus, userRepo, user, token, e_3, error_2, error_3;
+        var username, message, verificationLink, emailStatus, userRepo, user, token, e_4, error_2, error_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -152,12 +203,12 @@ var AuthController = /** @class */ (function () {
                 case 2:
                     user = _a.sent();
                     token = jwt.sign({ userId: user.id, username: user.username }, config_1.default.jwtSecretReset, { expiresIn: '10m' });
-                    //verificationLink = `http://localhost:3000/new-password/${token}`;
-                    verificationLink = "http://apistockear.herokuapp.com/new-password/" + token;
+                    verificationLink = "http://localhost:3000/new-password/" + token;
+                    //verificationLink = `http://apistockear.herokuapp.com/new-password/${token}`;
                     user.resetToken = token;
                     return [3 /*break*/, 4];
                 case 3:
-                    e_3 = _a.sent();
+                    e_4 = _a.sent();
                     return [2 /*return*/, res.json({ message: message })];
                 case 4:
                     _a.trys.push([4, 6, , 7]);

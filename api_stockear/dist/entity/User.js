@@ -14,6 +14,10 @@ var class_validator_1 = require("class-validator");
 var typeorm_1 = require("typeorm");
 var bcrypt = require("bcryptjs");
 var Producto_1 = require("./Producto");
+var Categoria_1 = require("./Categoria");
+var Venta_1 = require("./Venta");
+var Descuento_1 = require("./Descuento");
+var Recargo_1 = require("./Recargo");
 var User = /** @class */ (function () {
     function User() {
     }
@@ -29,12 +33,24 @@ var User = /** @class */ (function () {
         __metadata("design:type", Number)
     ], User.prototype, "id", void 0);
     __decorate([
-        typeorm_1.Column(),
+        typeorm_1.Column({ unique: true }),
         class_validator_1.MinLength(6),
         class_validator_1.IsEmail(),
         class_validator_1.IsNotEmpty(),
         __metadata("design:type", String)
     ], User.prototype, "username", void 0);
+    __decorate([
+        typeorm_1.Column(),
+        class_validator_1.MinLength(3),
+        class_validator_1.IsNotEmpty(),
+        __metadata("design:type", String)
+    ], User.prototype, "nombre", void 0);
+    __decorate([
+        typeorm_1.Column(),
+        class_validator_1.MinLength(3),
+        class_validator_1.IsNotEmpty(),
+        __metadata("design:type", String)
+    ], User.prototype, "apellido", void 0);
     __decorate([
         typeorm_1.Column(),
         class_validator_1.IsNotEmpty(),
@@ -67,9 +83,29 @@ var User = /** @class */ (function () {
         __metadata("design:type", Date)
     ], User.prototype, "modificado", void 0);
     __decorate([
+        typeorm_1.Column(),
+        __metadata("design:type", Number)
+    ], User.prototype, "adminId", void 0);
+    __decorate([
         typeorm_1.OneToMany(function () { return Producto_1.Producto; }, function (producto) { return producto.user; }),
         __metadata("design:type", Array)
     ], User.prototype, "productos", void 0);
+    __decorate([
+        typeorm_1.OneToMany(function () { return Categoria_1.Categoria; }, function (categoria) { return categoria.user; }),
+        __metadata("design:type", Array)
+    ], User.prototype, "categorias", void 0);
+    __decorate([
+        typeorm_1.OneToMany(function () { return Venta_1.Venta; }, function (venta) { return venta.user; }),
+        __metadata("design:type", Array)
+    ], User.prototype, "ventas", void 0);
+    __decorate([
+        typeorm_1.OneToMany(function () { return Descuento_1.Descuento; }, function (descuento) { return descuento.user; }),
+        __metadata("design:type", Array)
+    ], User.prototype, "descuentos", void 0);
+    __decorate([
+        typeorm_1.OneToMany(function () { return Recargo_1.Recargo; }, function (recargo) { return recargo.user; }),
+        __metadata("design:type", Array)
+    ], User.prototype, "recargos", void 0);
     User = __decorate([
         typeorm_1.Entity(),
         typeorm_1.Unique(['username'])
