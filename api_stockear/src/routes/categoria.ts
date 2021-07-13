@@ -5,7 +5,7 @@ import { chekRol } from "../middleware/rol";
 
 const router=Router();
 //obtener todas las medidas
-router.get('/',[checkJwt, chekRol(['admin'])],CategoriaController.getAll);
+router.get('/',[checkJwt],CategoriaController.getAll);
 //obtener una medida
 router.get('/:id', [checkJwt, chekRol(['admin'])],CategoriaController.getById);
 //crear nueva medida

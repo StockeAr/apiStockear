@@ -6,21 +6,30 @@ import { User } from "../entity/User";
 export class MedidaController {
 
     static getAll = async (req: Request, res: Response) => {
-        const { userId } = res.locals.jwtPayload;
+        const { userId, adminId } = res.locals.jwtPayload;
         const medidaRepo = getRepository(Medida);
+
+        let id;
+        if (adminId != 0) {
+            id = adminId;
+        } else {
+            id = userId;
+        }
+
         let medida;
         try {
             medida = await medidaRepo.find({
-                where: { user: userId }
+                where: { user: id }
             });
         } catch (e) {
-            res.status(404).json({ message: 'Algo anda mal' });
+            console.log("e: ", e);
+            return res.status(404).json({ message: 'Algo anda mal' });
         }
 
         if (medida.length > 0) {
-            res.send(medida);
+            return res.send(medida);
         } else {
-            res.status(404).json({ message: 'No hubo resultado' });
+            return res.status(404).json({ message: 'No hubo resultado' });
         }
     }
 
@@ -35,9 +44,10 @@ export class MedidaController {
                 select: ['id', 'descripcion'],
                 where: { user: userId }
             });
-            res.send(medida);
-        } catch (error) {
-            res.status(404).json({ message: 'No hubo resultado' });
+            return res.send(medida);
+        } catch (e) {
+            console.log('e: ', e);
+            return res.status(404).json({ message: 'No hubo resultado' });
         }
     };
 
@@ -47,12 +57,12 @@ export class MedidaController {
 
         const medida = new Medida();
         medida.descripcion = descripcion;
-        //medida.user = userId;
+        medida.user = userId;
 
         const opcionesValidacion = { validationError: { target: false, value: false } };
         const errors = await validate(medida, opcionesValidacion);
         if (errors.length > 0) {
-            return res.status(404).json(errors);
+            return res.status(404).json({ message: "existen algunos errores, vea la consola", errors });
         }
 
         const medidaRepo = getRepository(Medida);
@@ -113,7 +123,7 @@ export class MedidaController {
 
         //eliminando medida para
         medidaRepo.delete(id);
-        res.status(201).json({ message: 'Medida eliminada' });
+        return res.status(201).json({ message: 'Medida eliminada' });
     }
 
     static info = async (req: Request, res: Response) => {
@@ -123,7 +133,7 @@ export class MedidaController {
 
         const userRepo = getRepository(User);
         let users;
-        
+
 
         try {
             //medida = await medidaRepo.find({ relations: ['ingredientes'] });
@@ -154,7 +164,7 @@ export class MedidaController {
                 },
             }); */
 
-            users=await userRepo.find({relations:['medidas','categorias','descuentos','recargos']});
+            users = await userRepo.find({ relations: ['medidas', 'categorias', 'descuentos', 'recargos'] });
 
 
         } catch (e) {

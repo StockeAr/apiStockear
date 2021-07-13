@@ -13,8 +13,13 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
     catch (e) {
         return res.status(401).json({ message: 'No esta autorizado' });
     }
-    const { userId, username } = jwtPayload;
-    const newtoken = jwt.sign({ userId, username }, config.jwtSecret, { expiresIn: '1h' });
-    res.setHeader('token', newtoken);
-    next();
+    //console.log("jwtpayload",jwtPayload);
+    const { userId, username, negocioId } = jwtPayload;
+    //const newtoken = jwt.sign({ userId, username }, config.jwtSecret, { expiresIn: '1h' });
+    //res.setHeader('token', newtoken);
+    if (negocioId && negocioId != null) {
+        next();
+    } else {
+        return res.status(400).json({ message: "No esta en ningun negocio" });
+    }
 }

@@ -1,5 +1,5 @@
 import { getRepository } from "typeorm";
-import { json, Request, Response, Router } from "express";
+import { Request, Response } from "express";
 import { User } from "../entity/User";
 import { validate } from 'class-validator';
 
@@ -12,19 +12,19 @@ export class UserController {
         let users;
         try {
             users = await userRepository.find({
-                select: ['id', 'username', 'nombre','apellido', 'rol', 'modificado'],
+                select: ['id', 'username', 'nombre', 'apellido', 'rol', 'modificado'],
                 where: { adminId: userId }
             });
         }
         catch (e) {
-            res.status(404).json({ message: 'Algo anda mal :v' });
+            return res.status(404).json({ message: 'Algo anda mal :v' });
         }
 
         //aqui comprobamos si existe algun usuario
         if (users.length > 0) {
-            res.send(users);
+            return res.send(users);
         } else {
-            res.status(404).json({ message: 'No Hubo resultado' });
+            return res.status(404).json({ message: 'No Hubo resultado' });
         }
     };
     static getById = async (req: Request, res: Response) => {
@@ -35,18 +35,18 @@ export class UserController {
         let user;
         try {
             user = await userRepository.findOneOrFail(id, {
-                select: ['id', 'username', 'nombre','apellido', 'rol', 'creado', 'modificado'],
+                select: ['id', 'username', 'nombre', 'apellido', 'rol', 'creado', 'modificado'],
                 where: { adminId: userId }
             });
-            res.send(user);
+            return res.send(user);
         }
         catch (e) {
-            res.status(404).json({ message: 'No hubo resultado' });
+            return res.status(404).json({ message: 'No hubo resultado' });
         }
     };
     static newUser = async (req: Request, res: Response) => {
-        const { username, password , nombre, apellido} = req.body;
-        const { userId } = res.locals.jwtPayload;
+        const { username, password, nombre, apellido } = req.body;
+        const { userId, negocioId } = res.locals.jwtPayload;
 
         const user = new User();
         const fecha = new Date();
@@ -59,14 +59,15 @@ export class UserController {
         user.creado = fecha;
         user.modificado = fecha;
         user.adminId = userId;
-        user.nombre=nombre;
-        user.apellido=apellido;
+        user.nombre = nombre;
+        user.apellido = apellido;
+        user.negocio = negocioId;
 
         //validaciones
         const opcionesValidacion = { validationError: { target: false, value: false } };
         const errors = await validate(user, opcionesValidacion);
         if (errors.length > 0) {
-            return res.status(404).json(errors);
+            return res.status(404).json({ message: "existen algunos errores, vea la consola", errors });
         }
         //aqui vamos a realizar el hash para mas seguridad en las contraseñas
 
@@ -80,7 +81,7 @@ export class UserController {
             return res.status(409).json({ message: 'El nombre de usuario existe' });
         }
         //si todo esta bien mando un mensaje al front
-        res.status(201).json({ message: 'usuario creado' });
+        return res.status(201).json({ message: 'usuario creado' });
         //res.send('usuario creado');
     };
     static editUser = async (req: Request, res: Response) => {
@@ -105,7 +106,7 @@ export class UserController {
         const opcionesValidacion = { validationError: { target: false, value: false } };
         const errors = await validate(user, opcionesValidacion);
         if (errors.length > 0) {
-            return res.status(400).json(errors);
+            return res.status(400).json({ message: "existen algunos errores, vea la consola", errors });
         }
 
         //si todo esta bien guardamos los datos
@@ -115,7 +116,7 @@ export class UserController {
         catch (e) {
             return res.status(409).json({ message: 'El usuario esta en uso' })
         }
-        res.status(201).json({ message: 'usuario se ha modificado' });
+        return res.status(201).json({ message: 'usuario se ha modificado' });
     };
     static deleteUser = async (req: Request, res: Response) => {
         const { id } = req.params;
@@ -133,7 +134,7 @@ export class UserController {
         }
         //eliminando el usuario
         userRepository.delete(id);
-        res.status(201).json({ message: 'Usuario eliminado' });
+        return res.status(201).json({ message: 'Usuario eliminado' });
     };
 }
 export default UserController;

@@ -10,14 +10,14 @@ export const chekRol = (roles: Array<string>) => {
             user = await userRepository.findOneOrFail(userId);
         }
         catch (e) {
-            return res.status(401).json({ message: 'No esta autorizado' });
+            return res.status(401).json({ message: 'No esta autorizado 1' });
         }
         //Verifico si el rol coincide
         const { rol } = user;
         if (roles.includes(rol)) {
             next();
         } else {
-            res.status(401).json({ message: 'No esta autorizado' });
+            return res.status(401).json({ message: 'No esta autorizado 2' });
         }
     }
 }

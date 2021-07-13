@@ -1,15 +1,20 @@
-import { IsNotEmpty } from "class-validator";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import {Ingrediente} from './Ingrediente';
+import { IsNotEmpty, MinLength } from "class-validator";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Producto } from "./Producto";
+import { User } from "./User";
 @Entity()
-export class Medida{
+export class Medida {
     @PrimaryGeneratedColumn()
-    id:number;
+    id: number;
 
     @Column()
+    @MinLength(1)
     @IsNotEmpty()
-    descripcion:string;
+    descripcion: string;
 
-    /* @OneToMany(()=>Ingrediente,(ingrediente:Ingrediente)=>ingrediente.medida)
-    ingredientes:Ingrediente[]; */
+    @OneToMany(() => Producto, (producto: Producto) => producto.medida, { nullable: true })
+    productos: Producto[];
+
+    @ManyToOne(() => User, (user: User) => user.medidas)
+    user: User;
 }

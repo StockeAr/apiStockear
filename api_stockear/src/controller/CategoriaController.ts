@@ -6,22 +6,28 @@ import { Categoria } from "../entity/Categoria";
 export class CategoriaController {
 
     static getAll = async (req: Request, res: Response) => {
-        const { userId } = res.locals.jwtPayload;
+        const { userId, adminId } = res.locals.jwtPayload;
+        let id;
+        if (adminId != 0) {
+            id = adminId;
+        } else {
+            id = userId;
+        }
         const categoriaRepo = getRepository(Categoria);
         let categoria;
         try {
             categoria = await categoriaRepo.find({
                 select: ['id', 'descripcion'],
-                where: { user: userId }
+                where: { user: id }
             });
         } catch (e) {
-            res.status(404).json({ message: 'Algo anda mal' });
+            return res.status(404).json({ message: 'Algo anda mal' });
         }
 
         if (categoria.length > 0) {
-            res.send(categoria);
+            return res.send(categoria);
         } else {
-            res.status(404).json({ message: 'No hubo resultado' });
+            return res.status(404).json({ message: 'No hubo resultado' });
         }
     }
 
@@ -36,9 +42,9 @@ export class CategoriaController {
                 select: ['id', 'descripcion'],
                 where: { user: userId }
             });
-            res.send(categoria);
+            return res.send(categoria);
         } catch (error) {
-            res.status(404).json({ message: 'No hubo resultado' });
+            return res.status(404).json({ message: 'No hubo resultado' });
         }
     };
 
@@ -47,18 +53,14 @@ export class CategoriaController {
         const { userId } = res.locals.jwtPayload;
 
         const categoria = new Categoria();
+        categoria.descripcion = descripcion;
+        categoria.user = userId;
 
-        if (descripcion.length > 0) {
-            categoria.descripcion = descripcion;
-            categoria.user = userId;
-        } else {
-            return res.status(404).json({ message: 'debe proporcionar un valor' });
-        }
 
         const opcionesValidacion = { validationError: { target: false, value: false } };
         const errors = await validate(categoria, opcionesValidacion);
         if (errors.length > 0) {
-            return res.status(404).json(errors);
+            return res.status(404).json({ message: "existen algunos errores, vea la consola", errors });
         }
 
         const categoriaRepo = getRepository(Categoria);
@@ -68,7 +70,7 @@ export class CategoriaController {
             console.log(e);
             return res.status(404).json({ message: 'algo salio mal' });
         }
-        res.status(201).json({ message: 'categoria Agregada' });
+        return res.status(201).json({ message: 'categoria Agregada' });
     }
     static editCategoria = async (req: Request, res: Response) => {
         let categoria;
@@ -94,7 +96,7 @@ export class CategoriaController {
         const errors = await validate(categoria, opcionesValidacion);
 
         if (errors.length > 0) {
-            return res.status(400).json(errors);
+            return res.status(400).json({ message: "existen algunos errores, vea la consola", errors });
         }
 
         try {
@@ -103,7 +105,7 @@ export class CategoriaController {
         catch (e) {
             return res.status(409).json({ message: 'El nombre de la categoria ya esta en uso' })
         }
-        res.status(201).json({ message: 'categoria editada' });
+        return res.status(201).json({ message: 'categoria editada' });
     }
 
     static deleteCategoria = async (req: Request, res: Response) => {

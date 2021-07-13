@@ -39,12 +39,12 @@ export class VentaController {
             on p.categoriaId=c.id
             where v_p.ventaId=${id}`);
         } catch (e) {
-            return res.status(404).json({message:'algo anda mal 1', status: 404});
+            return res.status(404).json({ message: 'algo anda mal 1', status: 404 });
         }
 
-        if(ventaInfo.length > 0){
+        if (ventaInfo.length > 0) {
             res.send(ventaInfo);
-        }else{
+        } else {
             return res.status(404).json({ message: 'no hubo resultado', status: 404 });
         }
     }
@@ -55,7 +55,41 @@ export class VentaController {
         const userRepo = getRepository(User);
         let empleados;
         let venta;
-        let ventaEmpleado = [];
+        try {
+            venta = await ventaRepo
+                .createQueryBuilder("venta")
+                .select([
+                    "venta.fechaVenta",
+                    "venta.total",
+                    "venta.id",
+                    "user.username",
+                    "user.nombre",
+                    "user.apellido",
+                    "user.id",
+                    "venta_producto.cantidad",
+                    "venta_producto.totalParcial",
+                    "venta_producto.ventaId",
+                    "producto.descripcion",
+                    "producto.costo",
+                    "medida.descripcion",
+                    "categoria.descripcion",
+                ])
+                .leftJoin("venta.user", "user")
+                .leftJoin("venta.ventaProducto", "venta_producto")
+                .leftJoin("venta_producto.producto", "producto")
+                .leftJoin("producto.medida", "medida")
+                .leftJoin("producto.categoria", "categoria")
+                .orderBy("venta.fechaVenta", "DESC")
+                .where("user.adminId=:id", { id: userId })
+                .getMany();
+        } catch (e) {
+            console.log("e: ", e);
+            return res.status(404).json({ message: "algo salio mal" })
+        }
+        return res.json(venta);
+
+        //esto es anterior y no funciona
+        /* let ventaEmpleado = [];
         //let totalVenta = [];
         try {
             empleados = await userRepo.find({
@@ -64,30 +98,96 @@ export class VentaController {
             });
             //console.log(JSON.stringify(empleados));
         } catch (e) {
-            res.status(404).json({ message: 'Algo anda mal 1 ', status: 404 });
+            console.log("e: ", e);
+            return res.status(404).json({ message: 'Algo anda mal 1 ', status: 404 });
         }
         try {
             for (let i = 0; i < empleados.length; i++) {
                 venta = await ventaRepo.find({
                     select: ['total', 'fechaVenta', 'id'],
-                    where: { userId: empleados[i].id },
+                    where: { user: empleados[i].id },
                 });
                 ventaEmpleado.push(await venta);
             }
 
         } catch (e) {
-            console.log(e);
-            res.status(404).json({ message: 'Algo anda mal' });
+            console.log("e: ", e);
+            return res.status(404).json({ message: 'Algo anda mal' });
         }
         //console.log(totalVenta)
         if (ventaEmpleado.length > 0) {
 
             //console.log(reporte);
-            res.send(ventaEmpleado);
+            return res.send(ventaEmpleado);
         } else {
-            res.status(404).json({ message: 'No hubo resultado' });
-        }
+            return res.status(404).json({ message: 'No hubo resultado' });
+        } */
     };
+
+    static estadisticas = async (req: Request, res: Response) => {
+        const { userId, negocioId } = res.locals.jwtPayload;
+        const userRepo = getRepository(User);
+        let venta;
+        try {
+            venta = await userRepo
+                .createQueryBuilder("user")
+                .select("CONCAT(user.nombre,' ',user.apellido)", "name")
+                .addSelect("SUM(venta.total)", "value")
+                .leftJoin("user.ventas", "venta")
+                .where("user.negocio=:id", { id: negocioId })
+                .groupBy("user.id")
+                .getRawMany();
+        } catch (e) {
+            console.log("e: ", e);
+            return res.status(404).json({ message: "algo anda mal" });
+        }
+        console.log(venta);
+
+        let user;
+        try {
+            user = await userRepo
+                .createQueryBuilder("user")
+                .select("CONCAT(user.nombre,' ',user.apellido)", "name")
+                .addSelect("SUM(venta_producto.cantidad)", "value")
+                .leftJoin("user.ventas", "venta")
+                .leftJoin("venta.ventaProducto", "venta_producto")
+                .where("user.adminId=:id", { id: userId })
+                .andWhere("user.id=:id", { id: userId })
+                .groupBy("user.id")
+                .getRawMany();
+        } catch (e) {
+            console.log("e: ", e);
+            return res.status(404).json({ message: "algo anda mal" });
+        }
+
+        /* let producto;
+        const ventaRepo = getRepository(Producto);
+        try {
+            producto = await ventaRepo
+                .createQueryBuilder("producto")
+                .select([
+                    "venta.id",
+                    "venta_producto.cantidad",
+                    "producto.descripcion",
+                    "user.id",
+                    "user.nombre",
+                    "user.apellido"
+                ])
+                .leftJoin("producto.ventaProducto", "venta_producto")
+                .leftJoin("venta_producto.venta", "venta")
+                .leftJoin("venta.user", "user")
+                .where("user.adminId=:id", { id: userId })
+                .getMany();
+        } catch (e) {
+            console.log("e: ", e);
+            return res.status(404).json({ message: "algo salio mal" })
+        } */
+        //console.log(producto);
+
+
+        //res.send({ producto, user, aux, venta })
+        return res.status(200).json({ venta, user });
+    }
 
     static newVenta = async (req: Request, res: Response) => {
         const { userId } = res.locals.jwtPayload;
@@ -98,8 +198,8 @@ export class VentaController {
             return res.status(409).json({ message: 'La cantidad de productos no coincide con la cantidad a vender de cada uno', status: 404 });
         }
 
-        if((idProd.length==0) || (cantidad.length==0)){
-            return res.status(404).json({message:'no envio nada'});
+        if ((idProd.length == 0) || (cantidad.length == 0)) {
+            return res.status(404).json({ message: 'no envio nada' });
         }
 
         const prodRepo = getRepository(Producto);

@@ -1,12 +1,13 @@
 import { IsNotEmpty, MinLength, IsEmail, isEmail, IsOptional } from "class-validator";
-import { Entity, PrimaryGeneratedColumn, Column, Unique, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, Unique, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToMany, ManyToOne } from "typeorm";
 import * as bcrypt from 'bcryptjs';
 import { Producto } from './Producto';
 import { Medida } from "./Medida";
 import { Categoria } from "./Categoria";
 import { Venta } from "./Venta";
 import { Descuento } from "./Descuento";
-import {Recargo} from "./Recargo";
+import { Recargo } from "./Recargo";
+import { Negocio } from "./Negocio";
 
 @Entity()
 @Unique(['username'])
@@ -15,7 +16,7 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({unique:true})
+    @Column({ unique: true })
     @MinLength(6)
     @IsEmail()
     @IsNotEmpty()
@@ -24,12 +25,12 @@ export class User {
     @Column()
     @MinLength(3)
     @IsNotEmpty()
-    nombre:string;
+    nombre: string;
 
     @Column()
     @MinLength(3)
     @IsNotEmpty()
-    apellido:string;
+    apellido: string;
 
     @Column()
     @IsNotEmpty()
@@ -58,26 +59,32 @@ export class User {
     //@UpdateDateColumn()
     modificado: Date;
 
-    @Column()
-    adminId:number;
+    @Column({ default: 0 })
+    adminId: number;
+
+    @Column({ default: null })
+    imagen: string;
 
     @OneToMany(() => Producto, (producto: Producto) => producto.user)
     productos: Producto[];
 
-    /* @OneToMany(() =>Medida,(medida: Medida) => medida.user)
-    medidas: Medida[]; */
-
-    @OneToMany(() =>Categoria,(categoria: Categoria) => categoria.user)
+    @OneToMany(() => Categoria, (categoria: Categoria) => categoria.user)
     categorias: Categoria[];
 
-    @OneToMany(() =>Venta,(venta: Venta) =>venta.user)
-    ventas:Venta[];
+    @OneToMany(() => Medida, (medida: Medida) => medida.user)
+    medidas: Medida[];
 
-    @OneToMany(() =>Descuento,(descuento:Descuento)=>descuento.user)
+    @OneToMany(() => Venta, (venta: Venta) => venta.user)
+    ventas: Venta[];
+
+    @OneToMany(() => Descuento, (descuento: Descuento) => descuento.user)
     descuentos: Descuento[];
 
-    @OneToMany(() =>Recargo,(recargo:Recargo)=>recargo.user)
+    @OneToMany(() => Recargo, (recargo: Recargo) => recargo.user)
     recargos: Recargo[];
+
+    @ManyToOne(() => Negocio, (negocio: Negocio) => negocio.user, { nullable: true })
+    negocio: Negocio;
 
     hashPassword(): void {
         const salt = bcrypt.genSaltSync(10);

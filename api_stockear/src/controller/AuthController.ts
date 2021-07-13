@@ -4,45 +4,48 @@ import { User } from '../entity/User';
 import * as jwt from 'jsonwebtoken';
 import config from '../config/config';
 import { validate } from 'class-validator';
-import { checkJwt } from '../middleware/jwt';
 import { transporter } from '../config/mailer';
+import { Negocio } from '../entity/Negocio';
 
 class AuthController {
     static login = async (req: Request, res: Response) => {
         //req es lo que nos enviara el front-end
         const { username, password } = req.body;
         if (!(username && password)) {
-            return res.status(404).json({ message: 'Usuario y Contraseña son requeridos',status:404 });
+            return res.status(404).json({ message: 'Usuario y Contraseña son requeridos' });
         }
         const userRepository = getRepository(User);
         let user: User;
         try {
-            user = await userRepository.findOneOrFail({ where: { username:username.toLowerCase() } });
+            user = await userRepository.findOneOrFail({
+                where: { username: username.toLowerCase() },
+                relations: ['negocio']
+            });
         }
         catch (e) {
-            return res.status(409).json({ message: 'Usuario / Contraseña son incorrectos',status:409 });
+            return res.status(409).json({ message: 'Usuario / Contraseña son incorrectos' });
         }
-
         //verificando la contraseña
         if (!user.checkPassword(password)) {
-            return res.status(404).json({ message: 'Usuario / Contraseña son incorrectos', status:404});
+            return res.status(404).json({ message: 'Usuario / Contraseña son incorrectos' });
         }
-        const token = jwt.sign({ userId: user.id, username: user.username }, config.jwtSecret, { expiresIn: '2h' });
-        const refreshToken = jwt.sign({ userId: user.id, username: user.username }, config.jwtSecretRefresh, { expiresIn: '2h' });
+        const token = jwt.sign({ userId: user.id, username: user.username, adminId: user.adminId, negocioId: user.negocio?.id }, config.jwtSecret, { expiresIn: '2h' });
+        const refreshToken = jwt.sign({ userId: user.id, username: user.username, adminId: user.adminId, negocioId: user.negocio?.id }, config.jwtSecretRefresh, { expiresIn: '2h' });
 
         const role = user.rol;
         const userId = user.id;
         const adminId = user.adminId;
         const nombre = user.nombre;
         const apellido = user.apellido;
-
+        const perfil = user.imagen;
+        const email = user.username;
         user.refreshToken = refreshToken;
         try {
             await userRepository.save(user);
         } catch (error) {
-            return res.status(404).json({ message: 'algo anda mal', status:404});
+            return res.status(404).json({ message: 'algo anda mal', status: 404 });
         }
-        res.json({ message: 'Ok', token, refreshToken, role, userId, adminId, nombre, apellido });
+        return res.json({ message: 'Ok', token, refreshToken, role, userId, adminId, nombre, apellido, perfil, email });
 
     };
 
@@ -50,7 +53,7 @@ class AuthController {
         const { userId } = res.locals.jwtPayload;
         const { oldPassword, newPassword } = req.body;
         if (!(oldPassword && newPassword)) {
-            res.status(400).json({ message: 'La contraseña nueva / anterior son requeridas' });
+            return res.status(400).json({ message: 'La contraseña nueva / anterior son requeridas' });
         }
         const userRepository = getRepository(User);
         let user: User;
@@ -58,7 +61,7 @@ class AuthController {
             user = await userRepository.findOneOrFail(userId);
         }
         catch (e) {
-            res.status(400).json({ message: 'Algo anda mal >:V ' })
+            return res.status(400).json({ message: 'Algo anda mal >:V ' })
         }
         if (!user.checkPassword(oldPassword)) {
             return res.status(401).json({ message: 'Verifique su contraseña anterior' });
@@ -67,16 +70,20 @@ class AuthController {
         const opcionesValidacion = { validationError: { target: false, value: false } };
         const errors = await validate(user, opcionesValidacion);
         if (errors.length > 0) {
-            return res.status(400).json(errors);
+            return res.status(400).json({ message: "existen algunos errores, vea la consola", errors });
         }
         //has de la contraseña
-        user.hashPassword();
-        userRepository.save(user);
-        res.json({ message: 'Se ha cambiado la contraseña' });
+        try {
+            user.hashPassword();
+            userRepository.save(user);
+        } catch (e) {
+            return res.status(400).json({ message: "algo anda mal " })
+        }
+        return res.json({ message: 'Se ha cambiado la contraseña' });
     };
 
     static newAdmin = async (req: Request, res: Response) => {
-        const { username, password, nombre, apellido, confirmPassword } = req.body;
+        const { username, password, nombre, apellido, confirmPassword, imagen } = req.body;
         const user = new User();
         const fecha = new Date();
         user.username = username.toLowerCase();
@@ -89,12 +96,13 @@ class AuthController {
         user.adminId = 0;
         user.nombre = nombre;
         user.apellido = apellido;
+        user.imagen = imagen;
 
         //validaciones
         const opcionesValidacion = { validationError: { target: false, value: false } };
         const errors = await validate(user, opcionesValidacion);
         if (errors.length > 0) {
-            return res.status(404).json({message:errors});
+            return res.status(404).json({ message: "existen algunos errores, vea la consola", errors });
         }
 
         if (password != confirmPassword) {
@@ -102,9 +110,6 @@ class AuthController {
         }
 
         const userRepository = getRepository(User);
-
-        //console.log('esto guardo: ',user);
-        //aqui vamos a realizar el hash para mas seguridad en las contraseñas
         try {
             user.hashPassword();
             await userRepository.save(user);
@@ -114,8 +119,53 @@ class AuthController {
             return res.status(409).json({ message: 'Este usuario ya esta registrado' });
         }
         //si todo esta bien mando un mensaje al front
-        res.status(201).json({ message: 'Registro exitoso' });
+        return res.status(201).json({ message: 'Registro exitoso' });
     };
+
+    static editarPerfil = async (req: Request, res: Response) => {
+        const { userId } = res.locals.jwtPayload;
+        const { apellido, username, nombre, imagen } = req.body;
+        let user: User;
+        const userRepo = getRepository(User);
+        try {
+            user = await userRepo.findOneOrFail(userId);
+        } catch (e) {
+            return res.status(400).json({ message: "algo salio mal" });
+        }
+
+        user.apellido = apellido;
+        user.username = username;
+        user.nombre = nombre;
+        user.imagen = imagen;
+
+        const opcionesValidacion = { validationError: { target: false, value: false } };
+        const errors = await validate(user, opcionesValidacion);
+        if (errors.length > 0) {
+            return res.status(400).json({ message: "existen algunos errores, vea la consola", errors });
+        }
+
+        try {
+            await userRepo.save(user)
+        } catch (e) {
+            return res.status(400).json({ message: "algo anda mal" });
+        }
+
+        return res.status(200).json({ message: "perfil editado con exito" })
+    }
+
+    static myData = async (req: Request, res: Response) => {
+        const { id } = req.params;
+
+        let user: User;
+        const userRepo = getRepository(User);
+        try {
+            user = await userRepo.findOneOrFail(id, { select: ['nombre', 'apellido', 'username', 'imagen'] });
+        } catch (e) {
+            console.log("e: ", e)
+            return res.status(404).json({ message: "error al recuperar sus datos" });
+        }
+        return res.status(200).json(user)
+    }
 
     static forgotPassword = async (req: Request, res: Response) => {
         const { username } = req.body;
@@ -155,17 +205,17 @@ class AuthController {
 
         } catch (error) {
             emailStatus = error;
-            return res.status(400).json({ message: 'algo anda mal :V' });
+            return res.status(400).json({ message: 'algo anda mal 1 :V' });
         }
 
         try {
             await userRepo.save(user);
         } catch (error) {
             emailStatus = error;
-            return res.status(400).json({ message: 'Algo anda mal :V' });
+            return res.status(400).json({ message: 'Algo anda mal 2 :V' });
         }
 
-        res.json({ message, info: emailStatus, test: verificationLink });
+        return res.json({ message, info: emailStatus, test: verificationLink });
     };
 
     static createNewPassword = async (req: Request, res: Response) => {
@@ -190,7 +240,7 @@ class AuthController {
         const errors = await validate(user, validationOps);
 
         if (errors.length > 0) {
-            return res.status(400).json(errors);
+            return res.status(400).json({ message: "existen algunos errores, vea la consola", errors });
         }
 
         try {
@@ -200,13 +250,13 @@ class AuthController {
             return res.status(401).json({ message: 'algo anda mal' });
         }
 
-        res.json({ message: 'Contraseña cambiada' });
+        return res.json({ message: 'Contraseña cambiada' });
     }
 
     static refreshToken = async (req: Request, res: Response) => {
         const refreshToken = req.headers['refresh'] as string;
         if (!(refreshToken)) {
-            res.status(400).json({ message: 'algo nada mal :V' });
+            return res.status(400).json({ message: 'algo nada mal :V' });
         }
 
         const userRepo = getRepository(User);
@@ -218,10 +268,8 @@ class AuthController {
         } catch (error) {
             return res.status(400).json({ message: 'algo anda mal :V x2' });
         }
-
         const token = jwt.sign({ userId: user.id, username: user.username }, config.jwtSecret, { expiresIn: '120' });
-
-        res.json({ message: 'Ok', token });
+        return res.json({ message: 'Ok', token });
     }
 }
 export default AuthController;
