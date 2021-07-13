@@ -45,38 +45,44 @@ var MedidaController = /** @class */ (function () {
     function MedidaController() {
     }
     MedidaController.getAll = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var userId, medidaRepo, medida, e_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var _a, userId, adminId, medidaRepo, id, medida, e_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    userId = res.locals.jwtPayload.userId;
+                    _a = res.locals.jwtPayload, userId = _a.userId, adminId = _a.adminId;
                     medidaRepo = typeorm_1.getRepository(Medida_1.Medida);
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, medidaRepo.find({
-                            where: { user: userId }
-                        })];
-                case 2:
-                    medida = _a.sent();
-                    return [3 /*break*/, 4];
-                case 3:
-                    e_1 = _a.sent();
-                    res.status(404).json({ message: 'Algo anda mal' });
-                    return [3 /*break*/, 4];
-                case 4:
-                    if (medida.length > 0) {
-                        res.send(medida);
+                    if (adminId != 0) {
+                        id = adminId;
                     }
                     else {
-                        res.status(404).json({ message: 'No hubo resultado' });
+                        id = userId;
+                    }
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, medidaRepo.find({
+                            where: { user: id }
+                        })];
+                case 2:
+                    medida = _b.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    e_1 = _b.sent();
+                    console.log("e: ", e_1);
+                    return [2 /*return*/, res.status(404).json({ message: 'Algo anda mal' })];
+                case 4:
+                    if (medida.length > 0) {
+                        return [2 /*return*/, res.send(medida)];
+                    }
+                    else {
+                        return [2 /*return*/, res.status(404).json({ message: 'No hubo resultado' })];
                     }
                     return [2 /*return*/];
             }
         });
     }); };
     MedidaController.getById = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var id, userId, medidaRepo, medida, error_1;
+        var id, userId, medidaRepo, medida, e_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -92,18 +98,17 @@ var MedidaController = /** @class */ (function () {
                         })];
                 case 2:
                     medida = _a.sent();
-                    res.send(medida);
-                    return [3 /*break*/, 4];
+                    return [2 /*return*/, res.send(medida)];
                 case 3:
-                    error_1 = _a.sent();
-                    res.status(404).json({ message: 'No hubo resultado' });
-                    return [3 /*break*/, 4];
+                    e_2 = _a.sent();
+                    console.log('e: ', e_2);
+                    return [2 /*return*/, res.status(404).json({ message: 'No hubo resultado' })];
                 case 4: return [2 /*return*/];
             }
         });
     }); };
     MedidaController.newMedida = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var descripcion, userId, medida, opcionesValidacion, errors, medidaRepo, e_2;
+        var descripcion, userId, medida, opcionesValidacion, errors, medidaRepo, e_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -111,12 +116,13 @@ var MedidaController = /** @class */ (function () {
                     userId = res.locals.jwtPayload.userId;
                     medida = new Medida_1.Medida();
                     medida.descripcion = descripcion;
+                    medida.user = userId;
                     opcionesValidacion = { validationError: { target: false, value: false } };
                     return [4 /*yield*/, class_validator_1.validate(medida, opcionesValidacion)];
                 case 1:
                     errors = _a.sent();
                     if (errors.length > 0) {
-                        return [2 /*return*/, res.status(404).json(errors)];
+                        return [2 /*return*/, res.status(404).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     medidaRepo = typeorm_1.getRepository(Medida_1.Medida);
                     _a.label = 2;
@@ -127,8 +133,8 @@ var MedidaController = /** @class */ (function () {
                     _a.sent();
                     return [3 /*break*/, 5];
                 case 4:
-                    e_2 = _a.sent();
-                    console.log(e_2);
+                    e_3 = _a.sent();
+                    console.log(e_3);
                     return [2 /*return*/, res.status(404).json({ message: 'algo salio mal' })];
                 case 5:
                     res.status(201).json({ message: 'Medida Agregada' });
@@ -137,7 +143,7 @@ var MedidaController = /** @class */ (function () {
         });
     }); };
     MedidaController.editMedida = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var medida, id, descripcion, userId, medidaRepo, e_3, opcionesValidacion, errors, e_4;
+        var medida, id, descripcion, userId, medidaRepo, e_4, opcionesValidacion, errors, e_5;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -156,7 +162,7 @@ var MedidaController = /** @class */ (function () {
                     medida.descripcion = descripcion;
                     return [3 /*break*/, 4];
                 case 3:
-                    e_3 = _a.sent();
+                    e_4 = _a.sent();
                     return [2 /*return*/, res.status(404).json({ message: 'Medida no encontrada' })];
                 case 4:
                     opcionesValidacion = { validationError: { target: false, value: false } };
@@ -174,7 +180,7 @@ var MedidaController = /** @class */ (function () {
                     _a.sent();
                     return [3 /*break*/, 9];
                 case 8:
-                    e_4 = _a.sent();
+                    e_5 = _a.sent();
                     return [2 /*return*/, res.status(409).json({ message: 'El nombre de la medida ya esta en uso' })];
                 case 9:
                     res.status(201).json({ message: 'Medida editada' });
@@ -206,13 +212,12 @@ var MedidaController = /** @class */ (function () {
                 case 4:
                     //eliminando medida para
                     medidaRepo.delete(id);
-                    res.status(201).json({ message: 'Medida eliminada' });
-                    return [2 /*return*/];
+                    return [2 /*return*/, res.status(201).json({ message: 'Medida eliminada' })];
             }
         });
     }); };
     MedidaController.info = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var medidaRepo, medida, userRepo, users, e_5;
+        var medidaRepo, medida, userRepo, users, e_6;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -249,8 +254,8 @@ var MedidaController = /** @class */ (function () {
                     users = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    e_5 = _a.sent();
-                    console.log(e_5);
+                    e_6 = _a.sent();
+                    console.log(e_6);
                     res.status(404).json({ message: 'algo anda mal >:v' });
                     return [3 /*break*/, 4];
                 case 4:
@@ -260,7 +265,7 @@ var MedidaController = /** @class */ (function () {
         });
     }); };
     MedidaController.order = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var orderBy, medidaRepo, medida, e_6;
+        var orderBy, medidaRepo, medida, e_7;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -295,7 +300,7 @@ var MedidaController = /** @class */ (function () {
                     _a.label = 10;
                 case 10: return [3 /*break*/, 12];
                 case 11:
-                    e_6 = _a.sent();
+                    e_7 = _a.sent();
                     res.status(404).json({ message: 'Algo anda mal' });
                     return [3 /*break*/, 12];
                 case 12:

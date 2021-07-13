@@ -10,6 +10,7 @@ var descuento_1 = require("./descuento");
 var recargo_1 = require("./recargo");
 var producto_1 = require("./producto");
 var venta_1 = require("./venta");
+var negocio_1 = require("./negocio");
 var routes = express_1.Router();
 routes.use('/auth', auth_1.default);
 routes.use('/users', user_1.default);
@@ -20,5 +21,6 @@ routes.use('/descuento', descuento_1.default);
 routes.use('/recargo', recargo_1.default);
 routes.use('/producto', producto_1.default);
 routes.use('/venta', venta_1.default);
+routes.use('/negocio', negocio_1.default);
 exports.default = routes;
 //# sourceMappingURL=index.js.map

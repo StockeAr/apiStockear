@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Producto = void 0;
 var typeorm_1 = require("typeorm");
 var User_1 = require("./User");
+var Medida_1 = require("./Medida");
 var Categoria_1 = require("./Categoria");
 var class_validator_1 = require("class-validator");
 var VentaProducto_1 = require("./VentaProducto");
@@ -28,7 +29,7 @@ var Producto = /** @class */ (function () {
         __metadata("design:type", String)
     ], Producto.prototype, "descripcion", void 0);
     __decorate([
-        typeorm_1.Column(),
+        typeorm_1.Column({ type: "float" }),
         class_validator_1.IsNotEmpty(),
         __metadata("design:type", Number)
     ], Producto.prototype, "costo", void 0);
@@ -51,9 +52,17 @@ var Producto = /** @class */ (function () {
         __metadata("design:type", Date)
     ], Producto.prototype, "modificado", void 0);
     __decorate([
+        typeorm_1.Column({ nullable: true, default: null }),
+        __metadata("design:type", String)
+    ], Producto.prototype, "imagen", void 0);
+    __decorate([
         typeorm_1.ManyToOne(function () { return User_1.User; }, function (user) { return user.productos; }),
         __metadata("design:type", User_1.User)
     ], Producto.prototype, "user", void 0);
+    __decorate([
+        typeorm_1.ManyToOne(function () { return Medida_1.Medida; }, function (medida) { return medida.productos; }, { nullable: true }),
+        __metadata("design:type", Medida_1.Medida)
+    ], Producto.prototype, "medida", void 0);
     __decorate([
         typeorm_1.ManyToOne(function () { return Categoria_1.Categoria; }, function (categoria) { return categoria.productos; }),
         class_validator_1.IsNotEmpty(),

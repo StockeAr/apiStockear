@@ -46,51 +46,55 @@ var AuthController = /** @class */ (function () {
     function AuthController() {
     }
     AuthController.login = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, username, password, userRepository, user, e_1, token, refreshToken, role, userId, adminId, nombre, apellido, error_1;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        var _a, username, password, userRepository, user, e_1, token, refreshToken, role, userId, adminId, nombre, apellido, perfil, email, error_1;
+        var _b, _c;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
                 case 0:
                     _a = req.body, username = _a.username, password = _a.password;
                     if (!(username && password)) {
-                        return [2 /*return*/, res.status(404).json({ message: 'Usuario y Contraseña son requeridos', status: 404 })];
+                        return [2 /*return*/, res.status(404).json({ message: 'Usuario y Contraseña son requeridos' })];
                     }
                     userRepository = typeorm_1.getRepository(User_1.User);
-                    _b.label = 1;
+                    _d.label = 1;
                 case 1:
-                    _b.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepository.findOneOrFail({ where: { username: username.toLowerCase() } })];
+                    _d.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, userRepository.findOneOrFail({
+                            where: { username: username.toLowerCase() },
+                            relations: ['negocio']
+                        })];
                 case 2:
-                    user = _b.sent();
+                    user = _d.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    e_1 = _b.sent();
-                    return [2 /*return*/, res.status(409).json({ message: 'Usuario / Contraseña son incorrectos', status: 409 })];
+                    e_1 = _d.sent();
+                    return [2 /*return*/, res.status(409).json({ message: 'Usuario / Contraseña son incorrectos' })];
                 case 4:
                     //verificando la contraseña
                     if (!user.checkPassword(password)) {
-                        return [2 /*return*/, res.status(404).json({ message: 'Usuario / Contraseña son incorrectos', status: 404 })];
+                        return [2 /*return*/, res.status(404).json({ message: 'Usuario / Contraseña son incorrectos' })];
                     }
-                    token = jwt.sign({ userId: user.id, username: user.username }, config_1.default.jwtSecret, { expiresIn: '2h' });
-                    refreshToken = jwt.sign({ userId: user.id, username: user.username }, config_1.default.jwtSecretRefresh, { expiresIn: '2h' });
+                    token = jwt.sign({ userId: user.id, username: user.username, adminId: user.adminId, negocioId: (_b = user.negocio) === null || _b === void 0 ? void 0 : _b.id }, config_1.default.jwtSecret, { expiresIn: '2h' });
+                    refreshToken = jwt.sign({ userId: user.id, username: user.username, adminId: user.adminId, negocioId: (_c = user.negocio) === null || _c === void 0 ? void 0 : _c.id }, config_1.default.jwtSecretRefresh, { expiresIn: '2h' });
                     role = user.rol;
                     userId = user.id;
                     adminId = user.adminId;
                     nombre = user.nombre;
                     apellido = user.apellido;
+                    perfil = user.imagen;
+                    email = user.username;
                     user.refreshToken = refreshToken;
-                    _b.label = 5;
+                    _d.label = 5;
                 case 5:
-                    _b.trys.push([5, 7, , 8]);
+                    _d.trys.push([5, 7, , 8]);
                     return [4 /*yield*/, userRepository.save(user)];
                 case 6:
-                    _b.sent();
+                    _d.sent();
                     return [3 /*break*/, 8];
                 case 7:
-                    error_1 = _b.sent();
+                    error_1 = _d.sent();
                     return [2 /*return*/, res.status(404).json({ message: 'algo anda mal', status: 404 })];
-                case 8:
-                    res.json({ message: 'Ok', token: token, refreshToken: refreshToken, role: role, userId: userId, adminId: adminId, nombre: nombre, apellido: apellido });
-                    return [2 /*return*/];
+                case 8: return [2 /*return*/, res.json({ message: 'Ok', token: token, refreshToken: refreshToken, role: role, userId: userId, adminId: adminId, nombre: nombre, apellido: apellido, perfil: perfil, email: email })];
             }
         });
     }); };
@@ -102,7 +106,7 @@ var AuthController = /** @class */ (function () {
                     userId = res.locals.jwtPayload.userId;
                     _a = req.body, oldPassword = _a.oldPassword, newPassword = _a.newPassword;
                     if (!(oldPassword && newPassword)) {
-                        res.status(400).json({ message: 'La contraseña nueva / anterior son requeridas' });
+                        return [2 /*return*/, res.status(400).json({ message: 'La contraseña nueva / anterior son requeridas' })];
                     }
                     userRepository = typeorm_1.getRepository(User_1.User);
                     _b.label = 1;
@@ -114,8 +118,7 @@ var AuthController = /** @class */ (function () {
                     return [3 /*break*/, 4];
                 case 3:
                     e_2 = _b.sent();
-                    res.status(400).json({ message: 'Algo anda mal >:V ' });
-                    return [3 /*break*/, 4];
+                    return [2 /*return*/, res.status(400).json({ message: 'Algo anda mal >:V ' })];
                 case 4:
                     if (!user.checkPassword(oldPassword)) {
                         return [2 /*return*/, res.status(401).json({ message: 'Verifique su contraseña anterior' })];
@@ -126,22 +129,26 @@ var AuthController = /** @class */ (function () {
                 case 5:
                     errors = _b.sent();
                     if (errors.length > 0) {
-                        return [2 /*return*/, res.status(400).json(errors)];
+                        return [2 /*return*/, res.status(400).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     //has de la contraseña
-                    user.hashPassword();
-                    userRepository.save(user);
-                    res.json({ message: 'Se ha cambiado la contraseña' });
-                    return [2 /*return*/];
+                    try {
+                        user.hashPassword();
+                        userRepository.save(user);
+                    }
+                    catch (e) {
+                        return [2 /*return*/, res.status(400).json({ message: "algo anda mal " })];
+                    }
+                    return [2 /*return*/, res.json({ message: 'Se ha cambiado la contraseña' })];
             }
         });
     }); };
     AuthController.newAdmin = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, username, password, nombre, apellido, confirmPassword, user, fecha, opcionesValidacion, errors, userRepository, e_3;
+        var _a, username, password, nombre, apellido, confirmPassword, imagen, user, fecha, opcionesValidacion, errors, userRepository, e_3;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _a = req.body, username = _a.username, password = _a.password, nombre = _a.nombre, apellido = _a.apellido, confirmPassword = _a.confirmPassword;
+                    _a = req.body, username = _a.username, password = _a.password, nombre = _a.nombre, apellido = _a.apellido, confirmPassword = _a.confirmPassword, imagen = _a.imagen;
                     user = new User_1.User();
                     fecha = new Date();
                     user.username = username.toLowerCase();
@@ -154,12 +161,13 @@ var AuthController = /** @class */ (function () {
                     user.adminId = 0;
                     user.nombre = nombre;
                     user.apellido = apellido;
+                    user.imagen = imagen;
                     opcionesValidacion = { validationError: { target: false, value: false } };
                     return [4 /*yield*/, class_validator_1.validate(user, opcionesValidacion)];
                 case 1:
                     errors = _b.sent();
                     if (errors.length > 0) {
-                        return [2 /*return*/, res.status(404).json({ message: errors })];
+                        return [2 /*return*/, res.status(404).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     if (password != confirmPassword) {
                         return [2 /*return*/, res.status(409).json({ message: 'Las contraseñas no coinciden' })];
@@ -177,15 +185,80 @@ var AuthController = /** @class */ (function () {
                     e_3 = _b.sent();
                     console.log(e_3);
                     return [2 /*return*/, res.status(409).json({ message: 'Este usuario ya esta registrado' })];
+                case 5: 
+                //si todo esta bien mando un mensaje al front
+                return [2 /*return*/, res.status(201).json({ message: 'Registro exitoso' })];
+            }
+        });
+    }); };
+    AuthController.editarPerfil = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var userId, _a, apellido, username, nombre, imagen, user, userRepo, e_4, opcionesValidacion, errors, e_5;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    userId = res.locals.jwtPayload.userId;
+                    _a = req.body, apellido = _a.apellido, username = _a.username, nombre = _a.nombre, imagen = _a.imagen;
+                    userRepo = typeorm_1.getRepository(User_1.User);
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, userRepo.findOneOrFail(userId)];
+                case 2:
+                    user = _b.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    e_4 = _b.sent();
+                    return [2 /*return*/, res.status(400).json({ message: "algo salio mal" })];
+                case 4:
+                    user.apellido = apellido;
+                    user.username = username;
+                    user.nombre = nombre;
+                    user.imagen = imagen;
+                    opcionesValidacion = { validationError: { target: false, value: false } };
+                    return [4 /*yield*/, class_validator_1.validate(user, opcionesValidacion)];
                 case 5:
-                    //si todo esta bien mando un mensaje al front
-                    res.status(201).json({ message: 'Registro exitoso' });
-                    return [2 /*return*/];
+                    errors = _b.sent();
+                    if (errors.length > 0) {
+                        return [2 /*return*/, res.status(400).json({ message: "existen algunos errores, vea la consola", errors: errors })];
+                    }
+                    _b.label = 6;
+                case 6:
+                    _b.trys.push([6, 8, , 9]);
+                    return [4 /*yield*/, userRepo.save(user)];
+                case 7:
+                    _b.sent();
+                    return [3 /*break*/, 9];
+                case 8:
+                    e_5 = _b.sent();
+                    return [2 /*return*/, res.status(400).json({ message: "algo anda mal" })];
+                case 9: return [2 /*return*/, res.status(200).json({ message: "perfil editado con exito" })];
+            }
+        });
+    }); };
+    AuthController.myData = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var id, user, userRepo, e_6;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    id = req.params.id;
+                    userRepo = typeorm_1.getRepository(User_1.User);
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, userRepo.findOneOrFail(id, { select: ['nombre', 'apellido', 'username', 'imagen'] })];
+                case 2:
+                    user = _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    e_6 = _a.sent();
+                    console.log("e: ", e_6);
+                    return [2 /*return*/, res.status(404).json({ message: "error al recuperar sus datos" })];
+                case 4: return [2 /*return*/, res.status(200).json(user)];
             }
         });
     }); };
     AuthController.forgotPassword = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var username, message, verificationLink, emailStatus, userRepo, user, token, e_4, error_2, error_3;
+        var username, message, verificationLink, emailStatus, userRepo, user, token, e_7, error_2, error_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -208,7 +281,7 @@ var AuthController = /** @class */ (function () {
                     user.resetToken = token;
                     return [3 /*break*/, 4];
                 case 3:
-                    e_4 = _a.sent();
+                    e_7 = _a.sent();
                     return [2 /*return*/, res.json({ message: message })];
                 case 4:
                     _a.trys.push([4, 6, , 7]);
@@ -227,7 +300,7 @@ var AuthController = /** @class */ (function () {
                 case 6:
                     error_2 = _a.sent();
                     emailStatus = error_2;
-                    return [2 /*return*/, res.status(400).json({ message: 'algo anda mal :V' })];
+                    return [2 /*return*/, res.status(400).json({ message: 'algo anda mal 1 :V' })];
                 case 7:
                     _a.trys.push([7, 9, , 10]);
                     return [4 /*yield*/, userRepo.save(user)];
@@ -237,10 +310,8 @@ var AuthController = /** @class */ (function () {
                 case 9:
                     error_3 = _a.sent();
                     emailStatus = error_3;
-                    return [2 /*return*/, res.status(400).json({ message: 'Algo anda mal :V' })];
-                case 10:
-                    res.json({ message: message, info: emailStatus, test: verificationLink });
-                    return [2 /*return*/];
+                    return [2 /*return*/, res.status(400).json({ message: 'Algo anda mal 2 :V' })];
+                case 10: return [2 /*return*/, res.json({ message: message, info: emailStatus, test: verificationLink })];
             }
         });
     }); };
@@ -273,7 +344,7 @@ var AuthController = /** @class */ (function () {
                 case 5:
                     errors = _a.sent();
                     if (errors.length > 0) {
-                        return [2 /*return*/, res.status(400).json(errors)];
+                        return [2 /*return*/, res.status(400).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     _a.label = 6;
                 case 6:
@@ -286,9 +357,7 @@ var AuthController = /** @class */ (function () {
                 case 8:
                     error_5 = _a.sent();
                     return [2 /*return*/, res.status(401).json({ message: 'algo anda mal' })];
-                case 9:
-                    res.json({ message: 'Contraseña cambiada' });
-                    return [2 /*return*/];
+                case 9: return [2 /*return*/, res.json({ message: 'Contraseña cambiada' })];
             }
         });
     }); };
@@ -299,7 +368,7 @@ var AuthController = /** @class */ (function () {
                 case 0:
                     refreshToken = req.headers['refresh'];
                     if (!(refreshToken)) {
-                        res.status(400).json({ message: 'algo nada mal :V' });
+                        return [2 /*return*/, res.status(400).json({ message: 'algo nada mal :V' })];
                     }
                     userRepo = typeorm_1.getRepository(User_1.User);
                     _a.label = 1;
@@ -316,8 +385,7 @@ var AuthController = /** @class */ (function () {
                     return [2 /*return*/, res.status(400).json({ message: 'algo anda mal :V x2' })];
                 case 4:
                     token = jwt.sign({ userId: user.id, username: user.username }, config_1.default.jwtSecret, { expiresIn: '120' });
-                    res.json({ message: 'Ok', token: token });
-                    return [2 /*return*/];
+                    return [2 /*return*/, res.json({ message: 'Ok', token: token })];
             }
         });
     }); };

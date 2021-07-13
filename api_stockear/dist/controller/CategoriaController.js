@@ -44,32 +44,37 @@ var CategoriaController = /** @class */ (function () {
     function CategoriaController() {
     }
     CategoriaController.getAll = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var userId, categoriaRepo, categoria, e_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var _a, userId, adminId, id, categoriaRepo, categoria, e_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    userId = res.locals.jwtPayload.userId;
-                    categoriaRepo = typeorm_1.getRepository(Categoria_1.Categoria);
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, categoriaRepo.find({
-                            select: ['id', 'descripcion'],
-                            where: { user: userId }
-                        })];
-                case 2:
-                    categoria = _a.sent();
-                    return [3 /*break*/, 4];
-                case 3:
-                    e_1 = _a.sent();
-                    res.status(404).json({ message: 'Algo anda mal' });
-                    return [3 /*break*/, 4];
-                case 4:
-                    if (categoria.length > 0) {
-                        res.send(categoria);
+                    _a = res.locals.jwtPayload, userId = _a.userId, adminId = _a.adminId;
+                    if (adminId != 0) {
+                        id = adminId;
                     }
                     else {
-                        res.status(404).json({ message: 'No hubo resultado' });
+                        id = userId;
+                    }
+                    categoriaRepo = typeorm_1.getRepository(Categoria_1.Categoria);
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, categoriaRepo.find({
+                            select: ['id', 'descripcion'],
+                            where: { user: id }
+                        })];
+                case 2:
+                    categoria = _b.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    e_1 = _b.sent();
+                    return [2 /*return*/, res.status(404).json({ message: 'Algo anda mal' })];
+                case 4:
+                    if (categoria.length > 0) {
+                        return [2 /*return*/, res.send(categoria)];
+                    }
+                    else {
+                        return [2 /*return*/, res.status(404).json({ message: 'No hubo resultado' })];
                     }
                     return [2 /*return*/];
             }
@@ -92,12 +97,10 @@ var CategoriaController = /** @class */ (function () {
                         })];
                 case 2:
                     categoria = _a.sent();
-                    res.send(categoria);
-                    return [3 /*break*/, 4];
+                    return [2 /*return*/, res.send(categoria)];
                 case 3:
                     error_1 = _a.sent();
-                    res.status(404).json({ message: 'No hubo resultado' });
-                    return [3 /*break*/, 4];
+                    return [2 /*return*/, res.status(404).json({ message: 'No hubo resultado' })];
                 case 4: return [2 /*return*/];
             }
         });
@@ -110,19 +113,14 @@ var CategoriaController = /** @class */ (function () {
                     descripcion = req.body.descripcion;
                     userId = res.locals.jwtPayload.userId;
                     categoria = new Categoria_1.Categoria();
-                    if (descripcion.length > 0) {
-                        categoria.descripcion = descripcion;
-                        categoria.user = userId;
-                    }
-                    else {
-                        return [2 /*return*/, res.status(404).json({ message: 'debe proporcionar un valor' })];
-                    }
+                    categoria.descripcion = descripcion;
+                    categoria.user = userId;
                     opcionesValidacion = { validationError: { target: false, value: false } };
                     return [4 /*yield*/, class_validator_1.validate(categoria, opcionesValidacion)];
                 case 1:
                     errors = _a.sent();
                     if (errors.length > 0) {
-                        return [2 /*return*/, res.status(404).json(errors)];
+                        return [2 /*return*/, res.status(404).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     categoriaRepo = typeorm_1.getRepository(Categoria_1.Categoria);
                     _a.label = 2;
@@ -136,9 +134,7 @@ var CategoriaController = /** @class */ (function () {
                     e_2 = _a.sent();
                     console.log(e_2);
                     return [2 /*return*/, res.status(404).json({ message: 'algo salio mal' })];
-                case 5:
-                    res.status(201).json({ message: 'categoria Agregada' });
-                    return [2 /*return*/];
+                case 5: return [2 /*return*/, res.status(201).json({ message: 'categoria Agregada' })];
             }
         });
     }); };
@@ -173,7 +169,7 @@ var CategoriaController = /** @class */ (function () {
                 case 5:
                     errors = _a.sent();
                     if (errors.length > 0) {
-                        return [2 /*return*/, res.status(400).json(errors)];
+                        return [2 /*return*/, res.status(400).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     _a.label = 6;
                 case 6:
@@ -185,9 +181,7 @@ var CategoriaController = /** @class */ (function () {
                 case 8:
                     e_4 = _a.sent();
                     return [2 /*return*/, res.status(409).json({ message: 'El nombre de la categoria ya esta en uso' })];
-                case 9:
-                    res.status(201).json({ message: 'categoria editada' });
-                    return [2 /*return*/];
+                case 9: return [2 /*return*/, res.status(201).json({ message: 'categoria editada' })];
             }
         });
     }); };

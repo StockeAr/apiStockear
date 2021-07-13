@@ -56,14 +56,14 @@ exports.chekRol = function (roles) {
                     return [3 /*break*/, 4];
                 case 3:
                     e_1 = _a.sent();
-                    return [2 /*return*/, res.status(401).json({ message: 'No esta autorizado' })];
+                    return [2 /*return*/, res.status(401).json({ message: 'No esta autorizado 1' })];
                 case 4:
                     rol = user.rol;
                     if (roles.includes(rol)) {
                         next();
                     }
                     else {
-                        res.status(401).json({ message: 'No esta autorizado' });
+                        return [2 /*return*/, res.status(401).json({ message: 'No esta autorizado 2' })];
                     }
                     return [2 /*return*/];
             }

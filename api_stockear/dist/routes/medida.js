@@ -6,7 +6,7 @@ var jwt_1 = require("../middleware/jwt");
 var rol_1 = require("../middleware/rol");
 var router = express_1.Router();
 //obtener todas las medidas
-router.get('/', [jwt_1.checkJwt, rol_1.chekRol(['admin'])], MedidaController_1.MedidaController.getAll);
+router.get('/', [jwt_1.checkJwt], MedidaController_1.MedidaController.getAll);
 //obtener una medida
 router.get('/:id', [jwt_1.checkJwt, rol_1.chekRol(['admin'])], MedidaController_1.MedidaController.getById);
 //crear nueva medida

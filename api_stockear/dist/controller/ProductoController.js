@@ -76,26 +76,43 @@ var ProductoController = /** @class */ (function () {
                     _a.label = 5;
                 case 5:
                     _a.trys.push([5, 7, , 8]);
-                    return [4 /*yield*/, productoRepo.find({
-                            select: ['id', 'descripcion', 'costo', 'cantidad', 'minExistencia'],
-                            where: { user: id },
-                            relations: ['categoria']
-                        })];
+                    return [4 /*yield*/, productoRepo
+                            .createQueryBuilder("producto")
+                            .select([
+                            "producto.id",
+                            "producto.descripcion",
+                            "producto.costo",
+                            "producto.cantidad",
+                            "producto.minExistencia",
+                            "producto.imagen",
+                            "categoria.descripcion",
+                            "medida.descripcion"
+                        ])
+                            .leftJoin("producto.categoria", "categoria")
+                            .leftJoin("producto.medida", "medida")
+                            .where("producto.user=:id", { id: id })
+                            .orderBy("producto.modificado", "DESC")
+                            .getMany()];
                 case 6:
+                    /* producto = await productoRepo.find({
+                        select: ['id', 'descripcion', 'costo', 'cantidad', 'minExistencia', 'imagen', 'medida'],
+                        where: { user: id },
+                        relations: ['categoria', 'medida']
+                    }) */
                     producto = _a.sent();
                     return [3 /*break*/, 8];
                 case 7:
                     e_2 = _a.sent();
                     console.log(e_2);
-                    res.status(404).json({ message: 'Algo anda mal :V' });
-                    return [3 /*break*/, 8];
+                    return [2 /*return*/, res.status(404).json({ message: 'Algo anda mal :V' })];
                 case 8:
+                    //console.log(producto)
                     //aqui comprobamos si existe algun producto
                     if (producto.length > 0) {
-                        res.send(producto);
+                        return [2 /*return*/, res.send(producto)];
                     }
                     else {
-                        res.status(404).json({ message: 'No Hubo resultado' });
+                        return [2 /*return*/, res.status(404).json({ message: 'No Hubo resultado' })];
                     }
                     return [2 /*return*/];
             }
@@ -113,9 +130,9 @@ var ProductoController = /** @class */ (function () {
                 case 1:
                     _a.trys.push([1, 3, , 4]);
                     return [4 /*yield*/, productoRepo.findOneOrFail(id, {
-                            select: ['id', 'descripcion', 'costo', 'cantidad', 'minExistencia'],
+                            select: ['id', 'descripcion', 'costo', 'cantidad', 'minExistencia', 'medida', 'imagen'],
                             where: { user: userId },
-                            relations: ['categoria']
+                            relations: ['categoria', 'medida']
                         })];
                 case 2:
                     producto = _a.sent();
@@ -131,21 +148,33 @@ var ProductoController = /** @class */ (function () {
         });
     }); };
     ProductoController.newProducto = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, descripcion, costo, cantidad, minExistencia, categoriaId, userId, producto, fecha, opcionesValidacion, errors, productoRepo, e_4;
+        var _a, descripcion, costo, cantidad, minExistencia, categoriaId, medidaId, imagen, userId, producto, fecha, opcionesValidacion, errors, productoRepo, e_4;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _a = req.body, descripcion = _a.descripcion, costo = _a.costo, cantidad = _a.cantidad, minExistencia = _a.minExistencia, categoriaId = _a.categoriaId;
+                    _a = req.body, descripcion = _a.descripcion, costo = _a.costo, cantidad = _a.cantidad, minExistencia = _a.minExistencia, categoriaId = _a.categoriaId, medidaId = _a.medidaId, imagen = _a.imagen;
                     userId = res.locals.jwtPayload.userId;
                     producto = new Producto_1.Producto();
                     fecha = new Date();
                     producto.descripcion = descripcion;
-                    producto.costo = costo;
-                    producto.cantidad = cantidad;
-                    producto.minExistencia = minExistencia;
+                    producto.costo = parseFloat(costo);
+                    producto.cantidad = parseFloat(cantidad);
+                    producto.minExistencia = parseFloat(minExistencia);
                     producto.creado = fecha;
                     producto.modificado = fecha;
                     producto.user = userId;
+                    if (medidaId && medidaId != "") {
+                        producto.medida = medidaId;
+                    }
+                    else {
+                        producto.medida = null;
+                    }
+                    if (imagen && imagen != "") {
+                        producto.imagen = imagen;
+                    }
+                    else {
+                        producto.imagen = null;
+                    }
                     //producto.medida=medidaId;
                     producto.categoria = categoriaId;
                     opcionesValidacion = { validationError: { target: false, value: false } };
@@ -153,7 +182,7 @@ var ProductoController = /** @class */ (function () {
                 case 1:
                     errors = _b.sent();
                     if (errors.length > 0) {
-                        return [2 /*return*/, res.status(404).json(errors)];
+                        return [2 /*return*/, res.status(404).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     productoRepo = typeorm_1.getRepository(Producto_1.Producto);
                     _b.label = 2;
@@ -167,20 +196,17 @@ var ProductoController = /** @class */ (function () {
                     e_4 = _b.sent();
                     console.log(e_4);
                     return [2 /*return*/, res.status(409).json({ message: 'El producto ya existe' })];
-                case 5:
-                    res.status(201).json({ message: 'producto creado' });
-                    ;
-                    return [2 /*return*/];
+                case 5: return [2 /*return*/, res.status(201).json({ message: 'producto creado' })];
             }
         });
     }); };
     ProductoController.editProducto = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var id, _a, descripcion, costo, cantidad, minExistencia, medidaId, categoriaId, userId, fecha, productoRepo, producto, e_5, opcionesValidacion, errors, e_6;
+        var id, _a, descripcion, costo, cantidad, minExistencia, imagen, medidaId, categoriaId, userId, fecha, productoRepo, producto, e_5, opcionesValidacion, errors, e_6;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     id = req.params.id;
-                    _a = req.body, descripcion = _a.descripcion, costo = _a.costo, cantidad = _a.cantidad, minExistencia = _a.minExistencia, medidaId = _a.medidaId, categoriaId = _a.categoriaId;
+                    _a = req.body, descripcion = _a.descripcion, costo = _a.costo, cantidad = _a.cantidad, minExistencia = _a.minExistencia, imagen = _a.imagen, medidaId = _a.medidaId, categoriaId = _a.categoriaId;
                     userId = res.locals.jwtPayload.userId;
                     fecha = new Date();
                     productoRepo = typeorm_1.getRepository(Producto_1.Producto);
@@ -195,9 +221,20 @@ var ProductoController = /** @class */ (function () {
                     console.log('encuentro: ' + JSON.stringify(producto));
                     producto.descripcion = descripcion;
                     producto.costo = costo;
-                    producto.cantidad = cantidad;
+                    producto.cantidad = parseFloat(cantidad);
                     producto.minExistencia = minExistencia;
-                    producto.medida = medidaId;
+                    if (medidaId) {
+                        producto.medida = medidaId;
+                    }
+                    else {
+                        producto.medida = null;
+                    }
+                    if (imagen === "") {
+                        producto.imagen = null;
+                    }
+                    else {
+                        producto.imagen = imagen;
+                    }
                     producto.categoria = categoriaId;
                     producto.modificado = fecha;
                     return [3 /*break*/, 4];
@@ -210,22 +247,21 @@ var ProductoController = /** @class */ (function () {
                 case 5:
                     errors = _b.sent();
                     if (errors.length > 0) {
-                        return [2 /*return*/, res.status(400).json(errors)];
+                        return [2 /*return*/, res.status(400).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     _b.label = 6;
                 case 6:
                     _b.trys.push([6, 8, , 9]);
-                    console.log('guardo: ' + JSON.stringify(producto));
+                    //console.log('guardo: '+JSON.stringify(producto));
                     return [4 /*yield*/, productoRepo.save(producto)];
                 case 7:
+                    //console.log('guardo: '+JSON.stringify(producto));
                     _b.sent();
                     return [3 /*break*/, 9];
                 case 8:
                     e_6 = _b.sent();
                     return [2 /*return*/, res.status(409).json({ message: 'El Producto ya existe' })];
-                case 9:
-                    res.status(201).json({ message: 'Producto modificado' });
-                    return [2 /*return*/];
+                case 9: return [2 /*return*/, res.status(201).json({ message: 'Producto modificado' })];
             }
         });
     }); };
@@ -253,8 +289,7 @@ var ProductoController = /** @class */ (function () {
                 case 4:
                     //eliminando el producto
                     productoRepo.delete(id);
-                    res.status(201).json({ message: 'Producto eliminado' });
-                    return [2 /*return*/];
+                    return [2 /*return*/, res.status(201).json({ message: 'Producto eliminado' })];
             }
         });
     }); };

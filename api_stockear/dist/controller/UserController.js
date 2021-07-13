@@ -63,15 +63,14 @@ var UserController = /** @class */ (function () {
                     return [3 /*break*/, 4];
                 case 3:
                     e_1 = _a.sent();
-                    res.status(404).json({ message: 'Algo anda mal :v' });
-                    return [3 /*break*/, 4];
+                    return [2 /*return*/, res.status(404).json({ message: 'Algo anda mal :v' })];
                 case 4:
                     //aqui comprobamos si existe algun usuario
                     if (users.length > 0) {
-                        res.send(users);
+                        return [2 /*return*/, res.send(users)];
                     }
                     else {
-                        res.status(404).json({ message: 'No Hubo resultado' });
+                        return [2 /*return*/, res.status(404).json({ message: 'No Hubo resultado' })];
                     }
                     return [2 /*return*/];
             }
@@ -94,23 +93,21 @@ var UserController = /** @class */ (function () {
                         })];
                 case 2:
                     user = _a.sent();
-                    res.send(user);
-                    return [3 /*break*/, 4];
+                    return [2 /*return*/, res.send(user)];
                 case 3:
                     e_2 = _a.sent();
-                    res.status(404).json({ message: 'No hubo resultado' });
-                    return [3 /*break*/, 4];
+                    return [2 /*return*/, res.status(404).json({ message: 'No hubo resultado' })];
                 case 4: return [2 /*return*/];
             }
         });
     }); };
     UserController.newUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, username, password, nombre, apellido, userId, user, fecha, opcionesValidacion, errors, userRepository, e_3;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        var _a, username, password, nombre, apellido, _b, userId, negocioId, user, fecha, opcionesValidacion, errors, userRepository, e_3;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0:
                     _a = req.body, username = _a.username, password = _a.password, nombre = _a.nombre, apellido = _a.apellido;
-                    userId = res.locals.jwtPayload.userId;
+                    _b = res.locals.jwtPayload, userId = _b.userId, negocioId = _b.negocioId;
                     user = new User_1.User();
                     fecha = new Date();
                     user.username = username;
@@ -123,30 +120,30 @@ var UserController = /** @class */ (function () {
                     user.adminId = userId;
                     user.nombre = nombre;
                     user.apellido = apellido;
+                    user.negocio = negocioId;
                     opcionesValidacion = { validationError: { target: false, value: false } };
                     return [4 /*yield*/, class_validator_1.validate(user, opcionesValidacion)];
                 case 1:
-                    errors = _b.sent();
+                    errors = _c.sent();
                     if (errors.length > 0) {
-                        return [2 /*return*/, res.status(404).json(errors)];
+                        return [2 /*return*/, res.status(404).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     userRepository = typeorm_1.getRepository(User_1.User);
-                    _b.label = 2;
+                    _c.label = 2;
                 case 2:
-                    _b.trys.push([2, 4, , 5]);
+                    _c.trys.push([2, 4, , 5]);
                     user.hashPassword();
                     return [4 /*yield*/, userRepository.save(user)];
                 case 3:
-                    _b.sent();
+                    _c.sent();
                     return [3 /*break*/, 5];
                 case 4:
-                    e_3 = _b.sent();
+                    e_3 = _c.sent();
                     console.log(e_3);
                     return [2 /*return*/, res.status(409).json({ message: 'El nombre de usuario existe' })];
-                case 5:
-                    //si todo esta bien mando un mensaje al front
-                    res.status(201).json({ message: 'usuario creado' });
-                    return [2 /*return*/];
+                case 5: 
+                //si todo esta bien mando un mensaje al front
+                return [2 /*return*/, res.status(201).json({ message: 'usuario creado' })];
             }
         });
     }); };
@@ -181,7 +178,7 @@ var UserController = /** @class */ (function () {
                 case 5:
                     errors = _b.sent();
                     if (errors.length > 0) {
-                        return [2 /*return*/, res.status(400).json(errors)];
+                        return [2 /*return*/, res.status(400).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     _b.label = 6;
                 case 6:
@@ -193,9 +190,7 @@ var UserController = /** @class */ (function () {
                 case 8:
                     e_5 = _b.sent();
                     return [2 /*return*/, res.status(409).json({ message: 'El usuario esta en uso' })];
-                case 9:
-                    res.status(201).json({ message: 'usuario se ha modificado' });
-                    return [2 /*return*/];
+                case 9: return [2 /*return*/, res.status(201).json({ message: 'usuario se ha modificado' })];
             }
         });
     }); };
@@ -223,8 +218,7 @@ var UserController = /** @class */ (function () {
                 case 4:
                     //eliminando el usuario
                     userRepository.delete(id);
-                    res.status(201).json({ message: 'Usuario eliminado' });
-                    return [2 /*return*/];
+                    return [2 /*return*/, res.status(201).json({ message: 'Usuario eliminado' })];
             }
         });
     }); };

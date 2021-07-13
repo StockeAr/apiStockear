@@ -9,36 +9,51 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Medida = void 0;
+exports.Negocio = void 0;
 var class_validator_1 = require("class-validator");
 var typeorm_1 = require("typeorm");
-var Producto_1 = require("./Producto");
 var User_1 = require("./User");
-var Medida = /** @class */ (function () {
-    function Medida() {
+var Negocio = /** @class */ (function () {
+    function Negocio() {
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn(),
         __metadata("design:type", Number)
-    ], Medida.prototype, "id", void 0);
+    ], Negocio.prototype, "id", void 0);
     __decorate([
         typeorm_1.Column(),
-        class_validator_1.MinLength(1),
         class_validator_1.IsNotEmpty(),
         __metadata("design:type", String)
-    ], Medida.prototype, "descripcion", void 0);
+    ], Negocio.prototype, "nombre", void 0);
     __decorate([
-        typeorm_1.OneToMany(function () { return Producto_1.Producto; }, function (producto) { return producto.medida; }, { nullable: true }),
+        typeorm_1.Column({ default: null }),
+        __metadata("design:type", String)
+    ], Negocio.prototype, "descripcion", void 0);
+    __decorate([
+        typeorm_1.Column({ default: null }),
+        __metadata("design:type", String)
+    ], Negocio.prototype, "imagen", void 0);
+    __decorate([
+        typeorm_1.Column(),
+        class_validator_1.IsNotEmpty(),
+        __metadata("design:type", String)
+    ], Negocio.prototype, "direccion", void 0);
+    __decorate([
+        typeorm_1.Column({ default: null }),
+        __metadata("design:type", Number)
+    ], Negocio.prototype, "telefono", void 0);
+    __decorate([
+        typeorm_1.Column({ default: null }),
+        __metadata("design:type", String)
+    ], Negocio.prototype, "correo", void 0);
+    __decorate([
+        typeorm_1.OneToMany(function () { return User_1.User; }, function (user) { return user.negocio; }),
         __metadata("design:type", Array)
-    ], Medida.prototype, "productos", void 0);
-    __decorate([
-        typeorm_1.ManyToOne(function () { return User_1.User; }, function (user) { return user.medidas; }),
-        __metadata("design:type", User_1.User)
-    ], Medida.prototype, "user", void 0);
-    Medida = __decorate([
+    ], Negocio.prototype, "user", void 0);
+    Negocio = __decorate([
         typeorm_1.Entity()
-    ], Medida);
-    return Medida;
+    ], Negocio);
+    return Negocio;
 }());
-exports.Medida = Medida;
-//# sourceMappingURL=Medida.js.map
+exports.Negocio = Negocio;
+//# sourceMappingURL=Negocio.js.map

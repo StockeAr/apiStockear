@@ -105,69 +105,131 @@ var VentaController = /** @class */ (function () {
         });
     }); };
     VentaController.getEmpleadosVentas = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var userId, ventaRepo, userRepo, empleados, venta, ventaEmpleado, e_3, i, _a, _b, e_4;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var userId, ventaRepo, userRepo, empleados, venta, e_3;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
                     userId = res.locals.jwtPayload.userId;
                     ventaRepo = typeorm_1.getRepository(Venta_1.Venta);
                     userRepo = typeorm_1.getRepository(User_1.User);
-                    ventaEmpleado = [];
-                    _c.label = 1;
+                    _a.label = 1;
                 case 1:
-                    _c.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepo.find({
-                            select: ['id'],
-                            where: { adminId: userId }
-                        })];
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ventaRepo
+                            .createQueryBuilder("venta")
+                            .select([
+                            "venta.fechaVenta",
+                            "venta.total",
+                            "venta.id",
+                            "user.username",
+                            "user.nombre",
+                            "user.apellido",
+                            "user.id",
+                            "venta_producto.cantidad",
+                            "venta_producto.totalParcial",
+                            "venta_producto.ventaId",
+                            "producto.descripcion",
+                            "producto.costo",
+                            "medida.descripcion",
+                            "categoria.descripcion",
+                        ])
+                            .leftJoin("venta.user", "user")
+                            .leftJoin("venta.ventaProducto", "venta_producto")
+                            .leftJoin("venta_producto.producto", "producto")
+                            .leftJoin("producto.medida", "medida")
+                            .leftJoin("producto.categoria", "categoria")
+                            .orderBy("venta.fechaVenta", "DESC")
+                            .where("user.adminId=:id", { id: userId })
+                            .getMany()];
                 case 2:
-                    empleados = _c.sent();
+                    venta = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    e_3 = _c.sent();
-                    res.status(404).json({ message: 'Algo anda mal 1 ', status: 404 });
+                    e_3 = _a.sent();
+                    console.log("e: ", e_3);
+                    return [2 /*return*/, res.status(404).json({ message: "algo salio mal" })];
+                case 4: return [2 /*return*/, res.json(venta)];
+            }
+        });
+    }); };
+    VentaController.estadisticas = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var _a, userId, negocioId, userRepo, venta, e_4, user, e_5;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _a = res.locals.jwtPayload, userId = _a.userId, negocioId = _a.negocioId;
+                    userRepo = typeorm_1.getRepository(User_1.User);
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, userRepo
+                            .createQueryBuilder("user")
+                            .select("CONCAT(user.nombre,' ',user.apellido)", "name")
+                            .addSelect("SUM(venta.total)", "value")
+                            .leftJoin("user.ventas", "venta")
+                            .where("user.negocio=:id", { id: negocioId })
+                            .groupBy("user.id")
+                            .getRawMany()];
+                case 2:
+                    venta = _b.sent();
                     return [3 /*break*/, 4];
+                case 3:
+                    e_4 = _b.sent();
+                    console.log("e: ", e_4);
+                    return [2 /*return*/, res.status(404).json({ message: "algo anda mal" })];
                 case 4:
-                    _c.trys.push([4, 10, , 11]);
-                    i = 0;
-                    _c.label = 5;
+                    console.log(venta);
+                    _b.label = 5;
                 case 5:
-                    if (!(i < empleados.length)) return [3 /*break*/, 9];
-                    return [4 /*yield*/, ventaRepo.find({
-                            select: ['total', 'fechaVenta', 'id'],
-                            where: { userId: empleados[i].id },
-                        })];
+                    _b.trys.push([5, 7, , 8]);
+                    return [4 /*yield*/, userRepo
+                            .createQueryBuilder("user")
+                            .select("CONCAT(user.nombre,' ',user.apellido)", "name")
+                            .addSelect("SUM(venta_producto.cantidad)", "value")
+                            .leftJoin("user.ventas", "venta")
+                            .leftJoin("venta.ventaProducto", "venta_producto")
+                            .where("user.adminId=:id", { id: userId })
+                            .andWhere("user.id=:id", { id: userId })
+                            .groupBy("user.id")
+                            .getRawMany()];
                 case 6:
-                    venta = _c.sent();
-                    _b = (_a = ventaEmpleado).push;
-                    return [4 /*yield*/, venta];
+                    user = _b.sent();
+                    return [3 /*break*/, 8];
                 case 7:
-                    _b.apply(_a, [_c.sent()]);
-                    _c.label = 8;
-                case 8:
-                    i++;
-                    return [3 /*break*/, 5];
-                case 9: return [3 /*break*/, 11];
-                case 10:
-                    e_4 = _c.sent();
-                    console.log(e_4);
-                    res.status(404).json({ message: 'Algo anda mal' });
-                    return [3 /*break*/, 11];
-                case 11:
-                    //console.log(totalVenta)
-                    if (ventaEmpleado.length > 0) {
-                        //console.log(reporte);
-                        res.send(ventaEmpleado);
-                    }
-                    else {
-                        res.status(404).json({ message: 'No hubo resultado' });
-                    }
-                    return [2 /*return*/];
+                    e_5 = _b.sent();
+                    console.log("e: ", e_5);
+                    return [2 /*return*/, res.status(404).json({ message: "algo anda mal" })];
+                case 8: 
+                /* let producto;
+                const ventaRepo = getRepository(Producto);
+                try {
+                    producto = await ventaRepo
+                        .createQueryBuilder("producto")
+                        .select([
+                            "venta.id",
+                            "venta_producto.cantidad",
+                            "producto.descripcion",
+                            "user.id",
+                            "user.nombre",
+                            "user.apellido"
+                        ])
+                        .leftJoin("producto.ventaProducto", "venta_producto")
+                        .leftJoin("venta_producto.venta", "venta")
+                        .leftJoin("venta.user", "user")
+                        .where("user.adminId=:id", { id: userId })
+                        .getMany();
+                } catch (e) {
+                    console.log("e: ", e);
+                    return res.status(404).json({ message: "algo salio mal" })
+                } */
+                //console.log(producto);
+                //res.send({ producto, user, aux, venta })
+                return [2 /*return*/, res.status(200).json({ venta: venta, user: user })];
             }
         });
     }); };
     VentaController.newVenta = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var userId, _a, idProd, cantidad, adminId, prodRepo, infoProd, auxMin, i, e_5, i, e_6, i, myQuery, ventaRepo, venta, idVentaProd, aux, total, fecha, i, e_7, i, i, i, e_8;
+        var userId, _a, idProd, cantidad, adminId, prodRepo, infoProd, auxMin, i, e_6, i, e_7, i, myQuery, ventaRepo, venta, idVentaProd, aux, total, fecha, i, e_8, i, i, i, e_9;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -205,8 +267,8 @@ var VentaController = /** @class */ (function () {
                     return [3 /*break*/, 2];
                 case 5: return [3 /*break*/, 7];
                 case 6:
-                    e_5 = _b.sent();
-                    console.log('e1 ' + e_5);
+                    e_6 = _b.sent();
+                    console.log('e1 ' + e_6);
                     return [2 /*return*/, res.status(404).json({ message: 'algo anda mal 1', status: 404 })];
                 case 7: return [3 /*break*/, 14];
                 case 8:
@@ -230,8 +292,8 @@ var VentaController = /** @class */ (function () {
                     return [3 /*break*/, 9];
                 case 12: return [3 /*break*/, 14];
                 case 13:
-                    e_6 = _b.sent();
-                    console.log('e2 ' + e_6);
+                    e_7 = _b.sent();
+                    console.log('e2 ' + e_7);
                     return [2 /*return*/, res.status(404).json({ message: 'algo anda mal 2', status: 404 })];
                 case 14:
                     //compruebo si hubo resultado
@@ -269,8 +331,8 @@ var VentaController = /** @class */ (function () {
                     _b.sent();
                     return [3 /*break*/, 19];
                 case 18:
-                    e_7 = _b.sent();
-                    console.log('e3: ' + e_7);
+                    e_8 = _b.sent();
+                    console.log('e3: ' + e_8);
                     return [2 /*return*/, res.status(404).json({ message: 'no se pudo registrar la venta', status: 404 })];
                 case 19: return [4 /*yield*/, myQuery.query("select max(id) as m from venta")];
                 case 20:
@@ -317,8 +379,8 @@ var VentaController = /** @class */ (function () {
                     return [3 /*break*/, 30];
                 case 33: return [3 /*break*/, 35];
                 case 34:
-                    e_8 = _b.sent();
-                    console.log('e: ' + e_8);
+                    e_9 = _b.sent();
+                    console.log('e: ' + e_9);
                     return [2 /*return*/, res.status(404).json({ message: 'algo anda mal 4', status: 404 })];
                 case 35:
                     res.status(200).json({ message: 'se registro la venta con exito !!!', status: 200 });
