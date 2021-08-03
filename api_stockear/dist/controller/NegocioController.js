@@ -54,11 +54,8 @@ var NegocioController = /** @class */ (function () {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, negocioRepo.find({
-                            select: ['correo', 'descripcion', 'direccion', 'imagen', 'nombre', 'telefono'],
-                            where: [
-                                { id: negocioId }
-                            ]
+                    return [4 /*yield*/, negocioRepo.findOneOrFail(negocioId, {
+                            select: ['correo', 'descripcion', 'direccion', 'imagen', 'nombre', 'telefono']
                         })];
                 case 2:
                     negocio = _a.sent();
@@ -66,24 +63,30 @@ var NegocioController = /** @class */ (function () {
                 case 3:
                     e_1 = _a.sent();
                     console.log("e: ", e_1);
-                    return [2 /*return*/, res.status(404).json({ message: "algo anda mal" })];
-                case 4:
-                    if (negocio.length == 1) {
-                        return [2 /*return*/, res.status(200).json(negocio)];
-                    }
-                    else {
-                        return [2 /*return*/, res.status(404).json({ message: "no se encontro el negocio" })];
-                    }
-                    return [2 /*return*/];
+                    return [2 /*return*/, res.status(404).json({ message: "no se encontro el negocio" })];
+                case 4: return [2 /*return*/, res.status(200).json(negocio)];
             }
         });
     }); };
     NegocioController.new = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, img, name, descripcion, direccion, telefono, userId, negocio, opcionesValidacion, errors, negocioRepo, aux, e_2, userRepo, user, e_3;
+        var _a, img, name, descripcion, direccion, telefono, userId, userRepo, user, e_2, negocio, opcionesValidacion, errors, negocioRepo, aux, e_3, e_4;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _a = req.body, img = _a.img, name = _a.name, descripcion = _a.descripcion, direccion = _a.direccion, telefono = _a.telefono, userId = _a.userId;
+                    userRepo = typeorm_1.getRepository(User_1.User);
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, userRepo.findOneOrFail(userId, { where: { negocio: null } })];
+                case 2:
+                    user = _b.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    e_2 = _b.sent();
+                    console.log('e: ', e_2);
+                    return [2 /*return*/, res.status(400).json({ message: "algo anda mal 1" })];
+                case 4:
                     negocio = new Negocio_1.Negocio();
                     negocio.imagen = img;
                     negocio.nombre = name;
@@ -92,43 +95,39 @@ var NegocioController = /** @class */ (function () {
                     negocio.telefono = telefono;
                     opcionesValidacion = { validationError: { target: false, value: false } };
                     return [4 /*yield*/, class_validator_1.validate(negocio, opcionesValidacion)];
-                case 1:
+                case 5:
                     errors = _b.sent();
                     if (errors.length > 0) {
                         return [2 /*return*/, res.status(404).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     negocioRepo = typeorm_1.getRepository(Negocio_1.Negocio);
-                    _b.label = 2;
-                case 2:
-                    _b.trys.push([2, 4, , 5]);
-                    return [4 /*yield*/, negocioRepo.save(negocio)];
-                case 3:
-                    aux = _b.sent();
-                    return [3 /*break*/, 5];
-                case 4:
-                    e_2 = _b.sent();
-                    console.log('e: ', e_2);
-                    return [2 /*return*/, res.status(400).json({ message: "algo anda mal" })];
-                case 5:
-                    userRepo = typeorm_1.getRepository(User_1.User);
                     _b.label = 6;
                 case 6:
                     _b.trys.push([6, 8, , 9]);
-                    return [4 /*yield*/, userRepo.findOneOrFail(userId)];
+                    return [4 /*yield*/, negocioRepo.save(negocio)];
                 case 7:
-                    user = _b.sent();
-                    user.negocio = aux.id;
-                    userRepo.save(user);
+                    aux = _b.sent();
                     return [3 /*break*/, 9];
                 case 8:
                     e_3 = _b.sent();
-                    return [2 /*return*/, res.status(400).json({ message: "algo anda mal, cominiquese con el admin" })];
-                case 9: return [2 /*return*/, res.status(200).json({ message: 'negocio creado con exito, inicie session nuevamente' })];
+                    console.log('e: ', e_3);
+                    return [2 /*return*/, res.status(400).json({ message: "algo anda mal" })];
+                case 9:
+                    _b.trys.push([9, 11, , 12]);
+                    user.negocio = aux.id;
+                    return [4 /*yield*/, userRepo.save(user)];
+                case 10:
+                    _b.sent();
+                    return [3 /*break*/, 12];
+                case 11:
+                    e_4 = _b.sent();
+                    return [2 /*return*/, res.status(400).json({ message: "algo anda mal, contactese con soporte" })];
+                case 12: return [2 /*return*/, res.status(200).json({ message: 'negocio creado con exito, inicie session nuevamente' })];
             }
         });
     }); };
     NegocioController.edit = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var negocioId, _a, img, descripcion, name, direccion, telefono, negocio, negocioRepo, e_4, opcionesValidacion, errors, e_5;
+        var negocioId, _a, img, descripcion, name, direccion, telefono, negocio, negocioRepo, e_5, opcionesValidacion, errors, e_6;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -143,8 +142,8 @@ var NegocioController = /** @class */ (function () {
                     negocio = _b.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    e_4 = _b.sent();
-                    console.log('e: ', e_4);
+                    e_5 = _b.sent();
+                    console.log('e: ', e_5);
                     return [2 /*return*/, res.status(404).json({ message: "no se encontro el negocio" })];
                 case 4:
                     negocio.imagen = img;
@@ -167,8 +166,8 @@ var NegocioController = /** @class */ (function () {
                     _b.sent();
                     return [3 /*break*/, 9];
                 case 8:
-                    e_5 = _b.sent();
-                    console.log("e: ", e_5);
+                    e_6 = _b.sent();
+                    console.log("e: ", e_6);
                     return [2 /*return*/, res.status(400).json({ message: "algo anda mal" })];
                 case 9: return [2 /*return*/, res.status(200).json({ message: "negocio editado con exito" })];
             }
@@ -177,4 +176,5 @@ var NegocioController = /** @class */ (function () {
     return NegocioController;
 }());
 exports.NegocioController = NegocioController;
+exports.default = NegocioController;
 //# sourceMappingURL=NegocioController.js.map

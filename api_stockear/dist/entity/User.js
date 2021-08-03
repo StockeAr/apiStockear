@@ -21,6 +21,7 @@ var Descuento_1 = require("./Descuento");
 var Recargo_1 = require("./Recargo");
 var Negocio_1 = require("./Negocio");
 var User = /** @class */ (function () {
+    //@Unique(['username'])
     function User() {
     }
     User.prototype.hashPassword = function () {
@@ -60,15 +61,13 @@ var User = /** @class */ (function () {
         __metadata("design:type", String)
     ], User.prototype, "password", void 0);
     __decorate([
-        typeorm_1.Column(),
+        typeorm_1.Column({ default: null }),
         class_validator_1.IsOptional(),
-        class_validator_1.IsNotEmpty(),
         __metadata("design:type", String)
     ], User.prototype, "resetToken", void 0);
     __decorate([
-        typeorm_1.Column(),
+        typeorm_1.Column({ default: null }),
         class_validator_1.IsOptional(),
-        class_validator_1.IsNotEmpty(),
         __metadata("design:type", String)
     ], User.prototype, "refreshToken", void 0);
     __decorate([
@@ -76,6 +75,10 @@ var User = /** @class */ (function () {
         class_validator_1.IsNotEmpty(),
         __metadata("design:type", String)
     ], User.prototype, "rol", void 0);
+    __decorate([
+        typeorm_1.Column({ type: 'boolean', default: true }),
+        __metadata("design:type", Boolean)
+    ], User.prototype, "activo", void 0);
     __decorate([
         typeorm_1.Column({ type: 'datetime' }),
         __metadata("design:type", Date)
@@ -121,8 +124,8 @@ var User = /** @class */ (function () {
         __metadata("design:type", Negocio_1.Negocio)
     ], User.prototype, "negocio", void 0);
     User = __decorate([
-        typeorm_1.Entity(),
-        typeorm_1.Unique(['username'])
+        typeorm_1.Entity()
+        //@Unique(['username'])
     ], User);
     return User;
 }());

@@ -34,12 +34,12 @@ var Producto = /** @class */ (function () {
         __metadata("design:type", Number)
     ], Producto.prototype, "costo", void 0);
     __decorate([
-        typeorm_1.Column(),
+        typeorm_1.Column({ type: "float" }),
         class_validator_1.IsNotEmpty(),
         __metadata("design:type", Number)
     ], Producto.prototype, "minExistencia", void 0);
     __decorate([
-        typeorm_1.Column(),
+        typeorm_1.Column({ type: "float" }),
         class_validator_1.IsNotEmpty(),
         __metadata("design:type", Number)
     ], Producto.prototype, "cantidad", void 0);
@@ -51,6 +51,10 @@ var Producto = /** @class */ (function () {
         typeorm_1.Column({ type: 'datetime' }),
         __metadata("design:type", Date)
     ], Producto.prototype, "modificado", void 0);
+    __decorate([
+        typeorm_1.Column({ type: "boolean", default: false }),
+        __metadata("design:type", Boolean)
+    ], Producto.prototype, "activo", void 0);
     __decorate([
         typeorm_1.Column({ nullable: true, default: null }),
         __metadata("design:type", String)
@@ -64,8 +68,7 @@ var Producto = /** @class */ (function () {
         __metadata("design:type", Medida_1.Medida)
     ], Producto.prototype, "medida", void 0);
     __decorate([
-        typeorm_1.ManyToOne(function () { return Categoria_1.Categoria; }, function (categoria) { return categoria.productos; }),
-        class_validator_1.IsNotEmpty(),
+        typeorm_1.ManyToOne(function () { return Categoria_1.Categoria; }, function (categoria) { return categoria.productos; }, { nullable: false }),
         __metadata("design:type", Categoria_1.Categoria)
     ], Producto.prototype, "categoria", void 0);
     __decorate([

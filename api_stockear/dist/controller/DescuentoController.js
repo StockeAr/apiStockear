@@ -61,14 +61,13 @@ var DescuentoController = /** @class */ (function () {
                     return [3 /*break*/, 4];
                 case 3:
                     e_1 = _a.sent();
-                    res.status(404).json({ message: 'Algo anda mal' });
-                    return [3 /*break*/, 4];
+                    return [2 /*return*/, res.status(404).json({ message: 'Algo anda mal' })];
                 case 4:
                     if (descuento.length > 0) {
-                        res.send(descuento);
+                        return [2 /*return*/, res.send(descuento)];
                     }
                     else {
-                        res.status(404).json({ message: 'No hubo resultado' });
+                        return [2 /*return*/, res.status(404).json({ message: 'No hubo resultado' })];
                     }
                     return [2 /*return*/];
             }
@@ -91,13 +90,11 @@ var DescuentoController = /** @class */ (function () {
                         })];
                 case 2:
                     descuento = _a.sent();
-                    res.send(descuento);
                     return [3 /*break*/, 4];
                 case 3:
                     error_1 = _a.sent();
-                    res.status(404).json({ message: 'No hubo resultado' });
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/];
+                    return [2 /*return*/, res.status(404).json({ message: 'No hubo resultado' })];
+                case 4: return [2 /*return*/, res.send(descuento)];
             }
         });
     }); };
@@ -132,9 +129,7 @@ var DescuentoController = /** @class */ (function () {
                     e_2 = _b.sent();
                     console.log(e_2);
                     return [2 /*return*/, res.status(404).json({ message: 'algo salio mal' })];
-                case 5:
-                    res.status(201).json({ message: 'descuento Agregado' });
-                    return [2 /*return*/];
+                case 5: return [2 /*return*/, res.status(201).json({ message: 'descuento Agregado' })];
             }
         });
     }); };
@@ -180,9 +175,7 @@ var DescuentoController = /** @class */ (function () {
                 case 8:
                     e_4 = _b.sent();
                     return [2 /*return*/, res.status(409).json({ message: 'El nombre del descuento ya esta en uso' })];
-                case 9:
-                    res.status(201).json({ message: 'descuento editado' });
-                    return [2 /*return*/];
+                case 9: return [2 /*return*/, res.status(201).json({ message: 'descuento editado' })];
             }
         });
     }); };
@@ -207,9 +200,12 @@ var DescuentoController = /** @class */ (function () {
                     err_1 = _a.sent();
                     console.log(err_1);
                     return [2 /*return*/, res.status(404).json({ message: 'descuento no encontrado' })];
-                case 4:
+                case 4: 
+                //eliminando categoria para
+                return [4 /*yield*/, descuentoRepo.delete(id)];
+                case 5:
                     //eliminando categoria para
-                    descuentoRepo.delete(id);
+                    _a.sent();
                     res.status(201).json({ message: 'descuento eliminado' });
                     return [2 /*return*/];
             }
@@ -218,4 +214,5 @@ var DescuentoController = /** @class */ (function () {
     return DescuentoController;
 }());
 exports.DescuentoController = DescuentoController;
+exports.default = DescuentoController;
 //# sourceMappingURL=DescuentoController.js.map

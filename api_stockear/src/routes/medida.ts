@@ -15,7 +15,4 @@ router.patch('/:id', [checkJwt, chekRol(['admin'])], MedidaController.editMedida
 //eliminar una medida
 router.delete('/:id', [checkJwt, chekRol(['admin'])], MedidaController.deleteMedida);
 
-router.get('/info/info', MedidaController.info);
-router.get('/order', MedidaController.order);
-
 export default router;

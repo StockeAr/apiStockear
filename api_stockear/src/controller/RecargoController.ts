@@ -116,7 +116,8 @@ export class RecargoController {
         }
 
         //eliminando categoria para
-        recargoRepo.delete(id);
+        await recargoRepo.delete(id);
         res.status(201).json({ message: 'recargo eliminado' });
     }
 }
+export default RecargoController;

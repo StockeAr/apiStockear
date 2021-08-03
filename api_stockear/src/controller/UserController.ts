@@ -12,7 +12,7 @@ export class UserController {
         let users;
         try {
             users = await userRepository.find({
-                select: ['id', 'username', 'nombre', 'apellido', 'rol', 'modificado'],
+                select: ['id', 'username', 'nombre', 'apellido', 'rol', 'modificado','activo'],
                 where: { adminId: userId }
             });
         }
@@ -54,8 +54,6 @@ export class UserController {
         user.username = username;
         user.password = password;
         user.rol = "empleado";
-        user.resetToken = 'vacio';
-        user.refreshToken = 'vacio';
         user.creado = fecha;
         user.modificado = fecha;
         user.adminId = userId;
@@ -77,7 +75,7 @@ export class UserController {
             await userRepository.save(user);
         }
         catch (e) {
-            console.log(e);
+            console.log("e: ",e);
             return res.status(409).json({ message: 'El nombre de usuario existe' });
         }
         //si todo esta bien mando un mensaje al front
@@ -85,9 +83,9 @@ export class UserController {
         //res.send('usuario creado');
     };
     static editUser = async (req: Request, res: Response) => {
-        let user;
+        let user: User;
         const { id } = req.params;
-        const { username, rol } = req.body;
+        const { username, nombre, apellido, password, activo } = req.body;
         const { userId } = res.locals.jwtPayload;
 
         const fecha = new Date();
@@ -97,10 +95,20 @@ export class UserController {
                 where: { adminId: userId }
             });
             user.username = username;
-            user.rol = rol;
+            user.nombre = nombre;
+            user.apellido = apellido;
             user.modificado = fecha;
+            user.password = password;
+            if (activo.toLowerCase() === 'true') {
+                user.activo = true;
+            } else {
+                if (activo.toLowerCase() === 'false') {
+                    user.activo = false;
+                }
+            }
         }
         catch (e) {
+            console.log("e: ",e);
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
         const opcionesValidacion = { validationError: { target: false, value: false } };
@@ -111,9 +119,11 @@ export class UserController {
 
         //si todo esta bien guardamos los datos
         try {
+            user.hashPassword();
             await userRepository.save(user);
         }
         catch (e) {
+            console.log("e: ",e);
             return res.status(409).json({ message: 'El usuario esta en uso' })
         }
         return res.status(201).json({ message: 'usuario se ha modificado' });
@@ -132,8 +142,13 @@ export class UserController {
             console.log(e);
             return res.status(404).json({ message: 'Usuario no encontrado' })
         }
+        try {
+            await userRepository.delete(id);
+        } catch (e) {
+            console.log("e: ", e);
+            return res.status(404).json({ message: "no se pudo eliminar el usuario" });
+        }
         //eliminando el usuario
-        userRepository.delete(id);
         return res.status(201).json({ message: 'Usuario eliminado' });
     };
 }

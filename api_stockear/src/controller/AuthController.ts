@@ -5,7 +5,6 @@ import * as jwt from 'jsonwebtoken';
 import config from '../config/config';
 import { validate } from 'class-validator';
 import { transporter } from '../config/mailer';
-import { Negocio } from '../entity/Negocio';
 
 class AuthController {
     static login = async (req: Request, res: Response) => {
@@ -25,6 +24,9 @@ class AuthController {
         catch (e) {
             return res.status(409).json({ message: 'Usuario / Contraseña son incorrectos' });
         }
+        if (user.activo == false) {
+            return res.status(401).json({ message: "Cuenta Bloqueada" });
+        }
         //verificando la contraseña
         if (!user.checkPassword(password)) {
             return res.status(404).json({ message: 'Usuario / Contraseña son incorrectos' });
@@ -39,14 +41,14 @@ class AuthController {
         const apellido = user.apellido;
         const perfil = user.imagen;
         const email = user.username;
+        const negocio = user.negocio?.nombre || null;
         user.refreshToken = refreshToken;
         try {
             await userRepository.save(user);
         } catch (error) {
-            return res.status(404).json({ message: 'algo anda mal', status: 404 });
+            return res.status(404).json({ message: 'algo anda mal' });
         }
-        return res.json({ message: 'Ok', token, refreshToken, role, userId, adminId, nombre, apellido, perfil, email });
-
+        return res.json({ message: 'Ok', token, refreshToken, role, userId, adminId, nombre, apellido, perfil, email, negocio });
     };
 
     static changePassword = async (req: Request, res: Response) => {
@@ -89,11 +91,8 @@ class AuthController {
         user.username = username.toLowerCase();
         user.password = password;
         user.rol = 'admin';
-        user.resetToken = 'vacio';
-        user.refreshToken = 'vacio';
         user.creado = fecha;
         user.modificado = fecha;
-        user.adminId = 0;
         user.nombre = nombre;
         user.apellido = apellido;
         user.imagen = imagen;
@@ -150,21 +149,7 @@ class AuthController {
             return res.status(400).json({ message: "algo anda mal" });
         }
 
-        return res.status(200).json({ message: "perfil editado con exito" })
-    }
-
-    static myData = async (req: Request, res: Response) => {
-        const { id } = req.params;
-
-        let user: User;
-        const userRepo = getRepository(User);
-        try {
-            user = await userRepo.findOneOrFail(id, { select: ['nombre', 'apellido', 'username', 'imagen'] });
-        } catch (e) {
-            console.log("e: ", e)
-            return res.status(404).json({ message: "error al recuperar sus datos" });
-        }
-        return res.status(200).json(user)
+        return res.status(200).json({ message: "perfil editado con exito, inicie session nuevamente" })
     }
 
     static forgotPassword = async (req: Request, res: Response) => {

@@ -22,9 +22,6 @@ router.post('/change-password', [checkJwt], AuthController.changePassword);
 //registrarse
 router.post('/register', AuthController.newAdmin);
 
-//mis datos de admin
-//router.get('/mi-perfil/:id', AuthController.myData);
-
 //editar perfil de admin
 router.patch('/edit', [checkJwt, chekRol(['admin'])], AuthController.editarPerfil);
 

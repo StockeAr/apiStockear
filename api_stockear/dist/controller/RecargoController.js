@@ -207,9 +207,12 @@ var RecargoController = /** @class */ (function () {
                     err_1 = _a.sent();
                     console.log(err_1);
                     return [2 /*return*/, res.status(404).json({ message: 'recargo no encontrado' })];
-                case 4:
+                case 4: 
+                //eliminando categoria para
+                return [4 /*yield*/, recargoRepo.delete(id)];
+                case 5:
                     //eliminando categoria para
-                    recargoRepo.delete(id);
+                    _a.sent();
                     res.status(201).json({ message: 'recargo eliminado' });
                     return [2 /*return*/];
             }
@@ -218,4 +221,5 @@ var RecargoController = /** @class */ (function () {
     return RecargoController;
 }());
 exports.RecargoController = RecargoController;
+exports.default = RecargoController;
 //# sourceMappingURL=RecargoController.js.map

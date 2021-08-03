@@ -15,7 +15,5 @@ router.post('/', [jwt_1.checkJwt, rol_1.chekRol(['admin'])], MedidaController_1.
 router.patch('/:id', [jwt_1.checkJwt, rol_1.chekRol(['admin'])], MedidaController_1.MedidaController.editMedida);
 //eliminar una medida
 router.delete('/:id', [jwt_1.checkJwt, rol_1.chekRol(['admin'])], MedidaController_1.MedidaController.deleteMedida);
-router.get('/info/info', MedidaController_1.MedidaController.info);
-router.get('/order', MedidaController_1.MedidaController.order);
 exports.default = router;
 //# sourceMappingURL=medida.js.map

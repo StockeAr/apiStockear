@@ -27,7 +27,7 @@ var Venta = /** @class */ (function () {
         __metadata("design:type", Date)
     ], Venta.prototype, "fechaVenta", void 0);
     __decorate([
-        typeorm_1.Column(),
+        typeorm_1.Column({ type: "float" }),
         __metadata("design:type", Number)
     ], Venta.prototype, "total", void 0);
     __decorate([
@@ -40,12 +40,10 @@ var Venta = /** @class */ (function () {
     ], Venta.prototype, "ventaProducto", void 0);
     __decorate([
         typeorm_1.ManyToMany(function () { return Descuento_1.Descuento; }, function (descuento) { return descuento.ventas; }),
-        typeorm_1.JoinTable(),
         __metadata("design:type", Array)
     ], Venta.prototype, "descuentos", void 0);
     __decorate([
         typeorm_1.ManyToMany(function () { return Recargo_1.Recargo; }, function (recargo) { return recargo.ventas; }),
-        typeorm_1.JoinTable(),
         __metadata("design:type", Array)
     ], Venta.prototype, "recargos", void 0);
     Venta = __decorate([

@@ -46,30 +46,33 @@ var AuthController = /** @class */ (function () {
     function AuthController() {
     }
     AuthController.login = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, username, password, userRepository, user, e_1, token, refreshToken, role, userId, adminId, nombre, apellido, perfil, email, error_1;
-        var _b, _c;
-        return __generator(this, function (_d) {
-            switch (_d.label) {
+        var _a, username, password, userRepository, user, e_1, token, refreshToken, role, userId, adminId, nombre, apellido, perfil, email, negocio, error_1;
+        var _b, _c, _d;
+        return __generator(this, function (_e) {
+            switch (_e.label) {
                 case 0:
                     _a = req.body, username = _a.username, password = _a.password;
                     if (!(username && password)) {
                         return [2 /*return*/, res.status(404).json({ message: 'Usuario y Contraseña son requeridos' })];
                     }
                     userRepository = typeorm_1.getRepository(User_1.User);
-                    _d.label = 1;
+                    _e.label = 1;
                 case 1:
-                    _d.trys.push([1, 3, , 4]);
+                    _e.trys.push([1, 3, , 4]);
                     return [4 /*yield*/, userRepository.findOneOrFail({
                             where: { username: username.toLowerCase() },
                             relations: ['negocio']
                         })];
                 case 2:
-                    user = _d.sent();
+                    user = _e.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    e_1 = _d.sent();
+                    e_1 = _e.sent();
                     return [2 /*return*/, res.status(409).json({ message: 'Usuario / Contraseña son incorrectos' })];
                 case 4:
+                    if (user.activo == false) {
+                        return [2 /*return*/, res.status(401).json({ message: "Cuenta Bloqueada" })];
+                    }
                     //verificando la contraseña
                     if (!user.checkPassword(password)) {
                         return [2 /*return*/, res.status(404).json({ message: 'Usuario / Contraseña son incorrectos' })];
@@ -83,18 +86,19 @@ var AuthController = /** @class */ (function () {
                     apellido = user.apellido;
                     perfil = user.imagen;
                     email = user.username;
+                    negocio = ((_d = user.negocio) === null || _d === void 0 ? void 0 : _d.nombre) || null;
                     user.refreshToken = refreshToken;
-                    _d.label = 5;
+                    _e.label = 5;
                 case 5:
-                    _d.trys.push([5, 7, , 8]);
+                    _e.trys.push([5, 7, , 8]);
                     return [4 /*yield*/, userRepository.save(user)];
                 case 6:
-                    _d.sent();
+                    _e.sent();
                     return [3 /*break*/, 8];
                 case 7:
-                    error_1 = _d.sent();
-                    return [2 /*return*/, res.status(404).json({ message: 'algo anda mal', status: 404 })];
-                case 8: return [2 /*return*/, res.json({ message: 'Ok', token: token, refreshToken: refreshToken, role: role, userId: userId, adminId: adminId, nombre: nombre, apellido: apellido, perfil: perfil, email: email })];
+                    error_1 = _e.sent();
+                    return [2 /*return*/, res.status(404).json({ message: 'algo anda mal' })];
+                case 8: return [2 /*return*/, res.json({ message: 'Ok', token: token, refreshToken: refreshToken, role: role, userId: userId, adminId: adminId, nombre: nombre, apellido: apellido, perfil: perfil, email: email, negocio: negocio })];
             }
         });
     }); };
@@ -154,11 +158,8 @@ var AuthController = /** @class */ (function () {
                     user.username = username.toLowerCase();
                     user.password = password;
                     user.rol = 'admin';
-                    user.resetToken = 'vacio';
-                    user.refreshToken = 'vacio';
                     user.creado = fecha;
                     user.modificado = fecha;
-                    user.adminId = 0;
                     user.nombre = nombre;
                     user.apellido = apellido;
                     user.imagen = imagen;
@@ -231,34 +232,12 @@ var AuthController = /** @class */ (function () {
                 case 8:
                     e_5 = _b.sent();
                     return [2 /*return*/, res.status(400).json({ message: "algo anda mal" })];
-                case 9: return [2 /*return*/, res.status(200).json({ message: "perfil editado con exito" })];
-            }
-        });
-    }); };
-    AuthController.myData = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var id, user, userRepo, e_6;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    id = req.params.id;
-                    userRepo = typeorm_1.getRepository(User_1.User);
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepo.findOneOrFail(id, { select: ['nombre', 'apellido', 'username', 'imagen'] })];
-                case 2:
-                    user = _a.sent();
-                    return [3 /*break*/, 4];
-                case 3:
-                    e_6 = _a.sent();
-                    console.log("e: ", e_6);
-                    return [2 /*return*/, res.status(404).json({ message: "error al recuperar sus datos" })];
-                case 4: return [2 /*return*/, res.status(200).json(user)];
+                case 9: return [2 /*return*/, res.status(200).json({ message: "perfil editado con exito, inicie session nuevamente" })];
             }
         });
     }); };
     AuthController.forgotPassword = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var username, message, verificationLink, emailStatus, userRepo, user, token, e_7, error_2, error_3;
+        var username, message, verificationLink, emailStatus, userRepo, user, token, e_6, error_2, error_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -281,7 +260,7 @@ var AuthController = /** @class */ (function () {
                     user.resetToken = token;
                     return [3 /*break*/, 4];
                 case 3:
-                    e_7 = _a.sent();
+                    e_6 = _a.sent();
                     return [2 /*return*/, res.json({ message: message })];
                 case 4:
                     _a.trys.push([4, 6, , 7]);

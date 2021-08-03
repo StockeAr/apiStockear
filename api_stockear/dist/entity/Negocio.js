@@ -47,7 +47,7 @@ var Negocio = /** @class */ (function () {
         __metadata("design:type", String)
     ], Negocio.prototype, "correo", void 0);
     __decorate([
-        typeorm_1.OneToMany(function () { return User_1.User; }, function (user) { return user.negocio; }),
+        typeorm_1.OneToMany(function () { return User_1.User; }, function (user) { return user.negocio; }, { nullable: true }),
         __metadata("design:type", Array)
     ], Negocio.prototype, "user", void 0);
     Negocio = __decorate([

@@ -43,13 +43,16 @@ export class ProductoController {
                     "producto.cantidad",
                     "producto.minExistencia",
                     "producto.imagen",
+                    "producto.activo",
                     "categoria.descripcion",
-                    "medida.descripcion"
+                    "categoria.id",
+                    "medida.descripcion",
+                    "medida.id"
                 ])
                 .leftJoin("producto.categoria", "categoria")
                 .leftJoin("producto.medida", "medida")
                 .where("producto.user=:id", { id: id })
-                .orderBy("producto.modificado","DESC")
+                .orderBy("producto.modificado", "DESC")
                 .getMany();
         } catch (e) {
             console.log(e);
@@ -64,6 +67,51 @@ export class ProductoController {
         }
     };
 
+    static getAllActive = async (req: Request, res: Response) => {
+        const { adminId, userId } = res.locals.jwtPayload;
+        let id: number;
+        if (adminId == 0) {
+            id = userId;
+        } else {
+            id = adminId;
+        }
+
+        const prodRepo = getRepository(Producto);
+        let producto;
+        try {
+            producto = await prodRepo
+                .createQueryBuilder("producto")
+                .select([
+                    "producto.id",
+                    "producto.descripcion",
+                    "producto.costo",
+                    "producto.cantidad",
+                    "producto.minExistencia",
+                    "producto.imagen",
+                    "producto.activo",
+                    "categoria.descripcion",
+                    "categoria.id",
+                    "medida.descripcion",
+                    "medida.id"
+                ])
+                .leftJoin("producto.categoria", "categoria")
+                .leftJoin("producto.medida", "medida")
+                .where("producto.user=:id", { id: id })
+                .andWhere("producto.activo=:state", { state: true })
+                .orderBy("producto.modificado", "DESC")
+                .getMany();
+        } catch (e) {
+            console.log("e: ", e);
+            return res.status(404).json({ message: "Algo nada mal" });
+        }
+
+        if (producto.length > 0) {
+            return res.send(producto);
+        } else {
+            return res.status(404).json({ message: "no hubo resultado" });
+        }
+    }
+
     static getById = async (req: Request, res: Response) => {
         const { id } = req.params;
         const { userId } = res.locals.jwtPayload;
@@ -76,42 +124,48 @@ export class ProductoController {
                 where: { user: userId },
                 relations: ['categoria', 'medida']
             });
-            res.send(producto);
         } catch (e) {
             console.log(e);
-            res.status(404).json({ message: 'No hubo resultado' })
+            return res.status(404).json({ message: 'No hubo resultado' })
         }
+        return res.send(producto);
     };
 
     static newProducto = async (req: Request, res: Response) => {
         const { descripcion, costo, cantidad, minExistencia, categoriaId, medidaId, imagen } = req.body;
         const { userId } = res.locals.jwtPayload;
-        //falta asociar a medida,categoria
 
         const producto = new Producto();
         const fecha = new Date();
 
         producto.descripcion = descripcion;
         producto.costo = parseFloat(costo);
-        producto.cantidad = parseFloat(cantidad);
-        producto.minExistencia = parseFloat(minExistencia);
         producto.creado = fecha;
         producto.modificado = fecha;
         producto.user = userId;
+        producto.activo = true;
+
         if (medidaId && medidaId != "") {
             producto.medida = medidaId;
+            producto.cantidad = parseFloat(cantidad);
+            producto.minExistencia = parseFloat(minExistencia);
         } else {
             producto.medida = null;
+            producto.cantidad = Math.trunc(parseFloat(cantidad));
+            producto.minExistencia = Math.trunc(parseFloat(minExistencia));
         }
+
         if (imagen && imagen != "") {
             producto.imagen = imagen;
         } else {
             producto.imagen = null;
         }
 
-        //producto.medida=medidaId;
-        producto.categoria = categoriaId;
-
+        if (categoriaId && categoriaId != "") {
+            producto.categoria = categoriaId;
+        } else {
+            producto.categoria = null;
+        }
         //validaciones
         const opcionesValidacion = { validationError: { target: false, value: false } };
         const errors = await validate(producto, opcionesValidacion);
@@ -132,26 +186,35 @@ export class ProductoController {
 
     static editProducto = async (req: Request, res: Response) => {
         const { id } = req.params;
-        const { descripcion, costo, cantidad, minExistencia, imagen, medidaId, categoriaId } = req.body;
+        const { descripcion, costo, cantidad, minExistencia, imagen, medidaId, categoriaId, activo } = req.body;
         const { userId } = res.locals.jwtPayload;
 
         const fecha = new Date();
         const productoRepo = getRepository(Producto);
-        let producto;
+        let producto: Producto;
 
         try {
             producto = await productoRepo.findOneOrFail(id, {
                 where: { user: userId }
             });
-            console.log('encuentro: ' + JSON.stringify(producto))
+            //console.log('encuentro: ' + JSON.stringify(producto));
             producto.descripcion = descripcion;
             producto.costo = costo;
-            producto.cantidad = parseFloat(cantidad);
-            producto.minExistencia = minExistencia;
+            if (activo.toLowerCase() === 'true') {
+                producto.activo = true;
+            } else {
+                if (activo.toLowerCase() === 'false') {
+                    producto.activo = false;
+                }
+            }
             if (medidaId) {
                 producto.medida = medidaId;
+                producto.cantidad = parseFloat(cantidad);
+                producto.minExistencia = parseFloat(minExistencia);
             } else {
                 producto.medida = null;
+                producto.cantidad = Math.trunc(parseFloat(cantidad));
+                producto.minExistencia = Math.trunc(parseFloat(minExistencia));
             }
             if (imagen === "") {
                 producto.imagen = null
@@ -162,6 +225,7 @@ export class ProductoController {
             producto.modificado = fecha;
 
         } catch (e) {
+            console.log("e: ", e);
             return res.status(404).json({ message: 'Producto no encontrado' })
         }
 
@@ -172,10 +236,10 @@ export class ProductoController {
         }
 
         try {
-            //console.log('guardo: '+JSON.stringify(producto));
             await productoRepo.save(producto);
         } catch (e) {
-            return res.status(409).json({ message: 'El Producto ya existe' })
+            console.log("e: ", e);
+            return res.status(409).json({ message: 'El Producto ya existe o no se pudo actualizar' });
         }
         return res.status(201).json({ message: 'Producto modificado' });
     };
@@ -195,7 +259,13 @@ export class ProductoController {
         }
 
         //eliminando el producto
-        productoRepo.delete(id);
+        try {
+            await productoRepo.delete(id);
+        } catch (e) {
+            console.log("e: ", e);
+            return res.status(404).json({ message: "no se pudo borrar el producto, pruebe a desactivarlo" });
+        }
         return res.status(201).json({ message: 'Producto eliminado' });
     }
 }
+export default ProductoController;

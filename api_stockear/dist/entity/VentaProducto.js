@@ -29,11 +29,15 @@ var VentaProducto = /** @class */ (function () {
         __metadata("design:type", Number)
     ], VentaProducto.prototype, "ventaId", void 0);
     __decorate([
-        typeorm_1.Column(),
+        typeorm_1.Column({ type: "float" }),
         __metadata("design:type", Number)
     ], VentaProducto.prototype, "cantidad", void 0);
     __decorate([
-        typeorm_1.Column(),
+        typeorm_1.Column({ type: "float" }),
+        __metadata("design:type", Number)
+    ], VentaProducto.prototype, "precio", void 0);
+    __decorate([
+        typeorm_1.Column({ type: "float" }),
         __metadata("design:type", Number)
     ], VentaProducto.prototype, "totalParcial", void 0);
     __decorate([

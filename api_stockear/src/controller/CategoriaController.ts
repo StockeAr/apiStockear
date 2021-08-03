@@ -2,6 +2,7 @@ import { validate } from "class-validator";
 import { Request, Response } from "express";
 import { getRepository } from "typeorm";
 import { Categoria } from "../entity/Categoria";
+import { Producto } from "../entity/Producto";
 
 export class CategoriaController {
 
@@ -21,13 +22,14 @@ export class CategoriaController {
                 where: { user: id }
             });
         } catch (e) {
+            console.log("e: ", e);
             return res.status(404).json({ message: 'Algo anda mal' });
         }
 
         if (categoria.length > 0) {
             return res.send(categoria);
         } else {
-            return res.status(404).json({ message: 'No hubo resultado' });
+            return res.status(404).json({ message: 'No hubo resultado, agrege categorias' });
         }
     }
 
@@ -43,7 +45,8 @@ export class CategoriaController {
                 where: { user: userId }
             });
             return res.send(categoria);
-        } catch (error) {
+        } catch (e) {
+            console.log("e: ", e);
             return res.status(404).json({ message: 'No hubo resultado' });
         }
     };
@@ -55,7 +58,6 @@ export class CategoriaController {
         const categoria = new Categoria();
         categoria.descripcion = descripcion;
         categoria.user = userId;
-
 
         const opcionesValidacion = { validationError: { target: false, value: false } };
         const errors = await validate(categoria, opcionesValidacion);
@@ -89,6 +91,7 @@ export class CategoriaController {
             });
             categoria.descripcion = descripcion;
         } catch (e) {
+            console.log("e: ", e);
             return res.status(404).json({ message: 'categoria no encontrada' });
         }
 
@@ -103,6 +106,7 @@ export class CategoriaController {
             await categoriaRepo.save(categoria);
         }
         catch (e) {
+            console.log("e: ", e);
             return res.status(409).json({ message: 'El nombre de la categoria ya esta en uso' })
         }
         return res.status(201).json({ message: 'categoria editada' });
@@ -110,21 +114,42 @@ export class CategoriaController {
 
     static deleteCategoria = async (req: Request, res: Response) => {
         const { id } = req.params;
-        const { adminId } = res.locals.jwtPayload;
+        const { userId } = res.locals.jwtPayload;
 
         const categoriaRepo = getRepository(Categoria);
         let categoria;
         try {
-            categoria = await categoriaRepo.find({
-                where: { user: adminId, id: id }
+            categoria = await categoriaRepo.findOneOrFail(id, {
+                where: { user: userId }
             });
         }
-        catch (err) {
-            console.log(err);
+        catch (e) {
+            console.log("e: ", e);
             return res.status(404).json({ message: 'categoria no encontrada' });
         }
-        //eliminando categoria para
-        categoriaRepo.delete(id);
-        res.status(201).json({ message: 'categoria eliminada' });
+
+        /* const prodRepo = getRepository(Producto);
+        try {
+            await prodRepo
+                .createQueryBuilder()
+                .update(Producto)
+                .set({ categoria: null })
+                .where("categoria=:id", { id: id })
+                .andWhere("user=user", { user: userId })
+                .execute();
+        } catch (e) {
+            console.log("e: ", e);
+            return res.status(404).json({ message: "no se pudieron actualizar los productos" });
+        } */
+
+        //eliminando categoria
+        try {
+            await categoriaRepo.delete(id);
+        } catch (e) {
+            console.log("e: ", e);
+            return res.status(404).json({ message: "No se pudo eliminar" });
+        }
+        return res.status(201).json({ message: 'categoria eliminada' });
     }
 }
+export default CategoriaController;

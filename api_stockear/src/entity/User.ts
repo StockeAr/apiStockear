@@ -10,7 +10,7 @@ import { Recargo } from "./Recargo";
 import { Negocio } from "./Negocio";
 
 @Entity()
-@Unique(['username'])
+//@Unique(['username'])
 export class User {
 
     @PrimaryGeneratedColumn()
@@ -37,19 +37,20 @@ export class User {
     @MinLength(8)
     password: string;
 
-    @Column()
+    @Column({ default: null })
     @IsOptional()
-    @IsNotEmpty()
     resetToken: string;
 
-    @Column()
+    @Column({ default: null })
     @IsOptional()
-    @IsNotEmpty()
     refreshToken: string;
 
     @Column()
     @IsNotEmpty()
     rol: string;
+
+    @Column({ type: 'boolean', default: true })
+    activo: boolean;
 
     @Column({ type: 'datetime' })
     //@CreateDateColumn()

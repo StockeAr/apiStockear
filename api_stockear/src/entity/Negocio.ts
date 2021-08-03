@@ -34,6 +34,6 @@ export class Negocio {
     //@IsEmail()
     correo: string;
 
-    @OneToMany(() => User, (user: User) => user.negocio)
+    @OneToMany(() => User, (user: User) => user.negocio, { nullable: true })
     user: User[];
 }

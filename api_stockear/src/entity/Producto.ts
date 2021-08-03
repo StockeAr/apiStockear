@@ -18,11 +18,11 @@ export class Producto {
     @IsNotEmpty()
     costo: number;
 
-    @Column()
+    @Column({ type: "float" })
     @IsNotEmpty()
     minExistencia: number;
 
-    @Column()
+    @Column({ type: "float" })
     @IsNotEmpty()
     cantidad: number;
 
@@ -31,6 +31,9 @@ export class Producto {
 
     @Column({ type: 'datetime' })
     modificado: Date;
+
+    @Column({ type: "boolean", default: false })
+    activo: boolean;
 
     @Column({ nullable: true, default: null })
     imagen: string;
@@ -42,8 +45,8 @@ export class Producto {
     //@IsNotEmpty()
     medida: Medida;
 
-    @ManyToOne(() => Categoria, (categoria: Categoria) => categoria.productos)
-    @IsNotEmpty()
+    @ManyToOne(() => Categoria, (categoria: Categoria) => categoria.productos, { nullable: false })
+    //@IsNotEmpty()
     categoria: Categoria;
 
     @OneToMany(() => VentaProducto, (ventaProducto: VentaProducto) => ventaProducto.producto)

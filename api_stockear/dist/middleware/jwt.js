@@ -14,15 +14,14 @@ exports.checkJwt = function (req, res, next) {
     catch (e) {
         return res.status(401).json({ message: 'No esta autorizado' });
     }
-    //console.log("jwtpayload",jwtPayload);
     var userId = jwtPayload.userId, username = jwtPayload.username, negocioId = jwtPayload.negocioId;
     //const newtoken = jwt.sign({ userId, username }, config.jwtSecret, { expiresIn: '1h' });
     //res.setHeader('token', newtoken);
-    if (negocioId && negocioId != null) {
+    if (negocioId != null) {
         next();
     }
     else {
-        return res.status(400).json({ message: "No esta en ningun negocio" });
+        return res.status(400).json({ message: "No esta en ningun negocio, defina uno" });
     }
 };
 //# sourceMappingURL=jwt.js.map

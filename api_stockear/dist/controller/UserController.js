@@ -55,7 +55,7 @@ var UserController = /** @class */ (function () {
                 case 1:
                     _a.trys.push([1, 3, , 4]);
                     return [4 /*yield*/, userRepository.find({
-                            select: ['id', 'username', 'nombre', 'apellido', 'rol', 'modificado'],
+                            select: ['id', 'username', 'nombre', 'apellido', 'rol', 'modificado', 'activo'],
                             where: { adminId: userId }
                         })];
                 case 2:
@@ -113,8 +113,6 @@ var UserController = /** @class */ (function () {
                     user.username = username;
                     user.password = password;
                     user.rol = "empleado";
-                    user.resetToken = 'vacio';
-                    user.refreshToken = 'vacio';
                     user.creado = fecha;
                     user.modificado = fecha;
                     user.adminId = userId;
@@ -139,7 +137,7 @@ var UserController = /** @class */ (function () {
                     return [3 /*break*/, 5];
                 case 4:
                     e_3 = _c.sent();
-                    console.log(e_3);
+                    console.log("e: ", e_3);
                     return [2 /*return*/, res.status(409).json({ message: 'El nombre de usuario existe' })];
                 case 5: 
                 //si todo esta bien mando un mensaje al front
@@ -148,12 +146,12 @@ var UserController = /** @class */ (function () {
         });
     }); };
     UserController.editUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var user, id, _a, username, rol, userId, fecha, userRepository, e_4, opcionesValidacion, errors, e_5;
+        var user, id, _a, username, nombre, apellido, password, activo, userId, fecha, userRepository, e_4, opcionesValidacion, errors, e_5;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     id = req.params.id;
-                    _a = req.body, username = _a.username, rol = _a.rol;
+                    _a = req.body, username = _a.username, nombre = _a.nombre, apellido = _a.apellido, password = _a.password, activo = _a.activo;
                     userId = res.locals.jwtPayload.userId;
                     fecha = new Date();
                     userRepository = typeorm_1.getRepository(User_1.User);
@@ -166,11 +164,22 @@ var UserController = /** @class */ (function () {
                 case 2:
                     user = _b.sent();
                     user.username = username;
-                    user.rol = rol;
+                    user.nombre = nombre;
+                    user.apellido = apellido;
                     user.modificado = fecha;
+                    user.password = password;
+                    if (activo.toLowerCase() === 'true') {
+                        user.activo = true;
+                    }
+                    else {
+                        if (activo.toLowerCase() === 'false') {
+                            user.activo = false;
+                        }
+                    }
                     return [3 /*break*/, 4];
                 case 3:
                     e_4 = _b.sent();
+                    console.log("e: ", e_4);
                     return [2 /*return*/, res.status(404).json({ message: 'Usuario no encontrado' })];
                 case 4:
                     opcionesValidacion = { validationError: { target: false, value: false } };
@@ -183,19 +192,21 @@ var UserController = /** @class */ (function () {
                     _b.label = 6;
                 case 6:
                     _b.trys.push([6, 8, , 9]);
+                    user.hashPassword();
                     return [4 /*yield*/, userRepository.save(user)];
                 case 7:
                     _b.sent();
                     return [3 /*break*/, 9];
                 case 8:
                     e_5 = _b.sent();
+                    console.log("e: ", e_5);
                     return [2 /*return*/, res.status(409).json({ message: 'El usuario esta en uso' })];
                 case 9: return [2 /*return*/, res.status(201).json({ message: 'usuario se ha modificado' })];
             }
         });
     }); };
     UserController.deleteUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var id, userId, userRepository, user, e_6;
+        var id, userId, userRepository, user, e_6, e_7;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -216,9 +227,18 @@ var UserController = /** @class */ (function () {
                     console.log(e_6);
                     return [2 /*return*/, res.status(404).json({ message: 'Usuario no encontrado' })];
                 case 4:
-                    //eliminando el usuario
-                    userRepository.delete(id);
-                    return [2 /*return*/, res.status(201).json({ message: 'Usuario eliminado' })];
+                    _a.trys.push([4, 6, , 7]);
+                    return [4 /*yield*/, userRepository.delete(id)];
+                case 5:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 6:
+                    e_7 = _a.sent();
+                    console.log("e: ", e_7);
+                    return [2 /*return*/, res.status(404).json({ message: "no se pudo eliminar el usuario" })];
+                case 7: 
+                //eliminando el usuario
+                return [2 /*return*/, res.status(201).json({ message: 'Usuario eliminado' })];
             }
         });
     }); };

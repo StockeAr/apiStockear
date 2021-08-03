@@ -40,7 +40,7 @@ exports.MedidaController = void 0;
 var class_validator_1 = require("class-validator");
 var typeorm_1 = require("typeorm");
 var Medida_1 = require("../entity/Medida");
-var User_1 = require("../entity/User");
+var Producto_1 = require("../entity/Producto");
 var MedidaController = /** @class */ (function () {
     function MedidaController() {
     }
@@ -136,9 +136,7 @@ var MedidaController = /** @class */ (function () {
                     e_3 = _a.sent();
                     console.log(e_3);
                     return [2 /*return*/, res.status(404).json({ message: 'algo salio mal' })];
-                case 5:
-                    res.status(201).json({ message: 'Medida Agregada' });
-                    return [2 /*return*/];
+                case 5: return [2 /*return*/, res.status(201).json({ message: 'Medida Agregada' })];
             }
         });
     }); };
@@ -170,7 +168,7 @@ var MedidaController = /** @class */ (function () {
                 case 5:
                     errors = _a.sent();
                     if (errors.length > 0) {
-                        return [2 /*return*/, res.status(400).json(errors)];
+                        return [2 /*return*/, res.status(400).json({ message: "existen algunos errores, vea la consola", errors: errors })];
                     }
                     _a.label = 6;
                 case 6:
@@ -182,130 +180,61 @@ var MedidaController = /** @class */ (function () {
                 case 8:
                     e_5 = _a.sent();
                     return [2 /*return*/, res.status(409).json({ message: 'El nombre de la medida ya esta en uso' })];
-                case 9:
-                    res.status(201).json({ message: 'Medida editada' });
-                    return [2 /*return*/];
+                case 9: return [2 /*return*/, res.status(201).json({ message: 'Medida editada' })];
             }
         });
     }); };
     MedidaController.deleteMedida = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var id, adminId, medidaRepo, medida, err_1;
+        var id, userId, medidaRepo, err_1, prodRepo, e_6, e_7;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     id = req.params.id;
-                    adminId = res.locals.jwtPayload.adminId;
+                    userId = res.locals.jwtPayload.userId;
                     medidaRepo = typeorm_1.getRepository(Medida_1.Medida);
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, medidaRepo.find({
-                            where: { user: adminId, id: id }
+                    return [4 /*yield*/, medidaRepo.findOneOrFail(id, {
+                            where: { user: userId }
                         })];
                 case 2:
-                    medida = _a.sent();
+                    _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
                     err_1 = _a.sent();
                     console.log(err_1);
                     return [2 /*return*/, res.status(404).json({ message: 'Medida no encontrada' })];
                 case 4:
-                    //eliminando medida para
-                    medidaRepo.delete(id);
-                    return [2 /*return*/, res.status(201).json({ message: 'Medida eliminada' })];
-            }
-        });
-    }); };
-    MedidaController.info = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var medidaRepo, medida, userRepo, users, e_6;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    medidaRepo = typeorm_1.getRepository(Medida_1.Medida);
-                    userRepo = typeorm_1.getRepository(User_1.User);
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, userRepo.find({ relations: ['medidas', 'categorias', 'descuentos', 'recargos'] })];
-                case 2:
-                    //medida = await medidaRepo.find({ relations: ['ingredientes'] });
-                    /* medida = await medidaRepo.createQueryBuilder("medida")
-                        .innerJoinAndSelect("medida.ingredientes", "ingrediente")
-                        .getMany(); */
-                    //ambas funciones realizan el mismo trabajo.
-                    /* medida = await medidaRepo
-                        .createQueryBuilder()
-                        .select("medida.id,medida.nombre")
-                        .addSelect("CONCAT(medida.id,medida.nombre)", "calc")
-                        .getRawMany(); */
-                    //para mas informacion consultar documentacion de typeorm->select query builder->Getting values using querybuilder
-                    /* users=await userRepo.find({
-                        select: ['id', 'username','rol'],
-                        join: {
-                            alias: 'user',
-                            innerJoinAndSelect: {
-                                medida: 'user.medidas',
-                                categoria:'user.categorias',
-                                recargo: 'user.recargos',
-                                descuento: 'user.descuentos',
-                            }
-                        },
-                    }); */
-                    users = _a.sent();
-                    return [3 /*break*/, 4];
-                case 3:
-                    e_6 = _a.sent();
-                    console.log(e_6);
-                    res.status(404).json({ message: 'algo anda mal >:v' });
-                    return [3 /*break*/, 4];
-                case 4:
-                    res.send(users);
-                    return [2 /*return*/];
-            }
-        });
-    }); };
-    MedidaController.order = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var orderBy, medidaRepo, medida, e_7;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    orderBy = req.body.orderBy;
-                    medidaRepo = typeorm_1.getRepository(Medida_1.Medida);
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 11, , 12]);
-                    console.log("esto me llego: " + orderBy);
-                    if (!orderBy) return [3 /*break*/, 8];
-                    if (!(orderBy == 'ASC')) return [3 /*break*/, 3];
-                    return [4 /*yield*/, medidaRepo.find({ order: { descripcion: 'ASC' } })];
-                case 2:
-                    medida = _a.sent();
-                    return [3 /*break*/, 7];
-                case 3:
-                    if (!(orderBy == 'DESC')) return [3 /*break*/, 5];
-                    return [4 /*yield*/, medidaRepo.find({ order: { descripcion: 'DESC' } })];
-                case 4:
-                    medida = _a.sent();
-                    return [3 /*break*/, 7];
-                case 5: return [4 /*yield*/, medidaRepo.find()];
+                    prodRepo = typeorm_1.getRepository(Producto_1.Producto);
+                    _a.label = 5;
+                case 5:
+                    _a.trys.push([5, 7, , 8]);
+                    return [4 /*yield*/, prodRepo
+                            .createQueryBuilder()
+                            .update(Producto_1.Producto)
+                            .set({ medida: null })
+                            .where("medida=:id", { id: id })
+                            .andWhere("user=user", { user: userId })
+                            .execute()];
                 case 6:
-                    medida = _a.sent();
-                    _a.label = 7;
-                case 7: return [3 /*break*/, 10];
+                    _a.sent();
+                    return [3 /*break*/, 8];
+                case 7:
+                    e_6 = _a.sent();
+                    console.log("e: ", e_6);
+                    return [2 /*return*/, res.status(404).json({ message: "no se pudieron actualizar los productos" })];
                 case 8:
-                    console.log("no mando orderBY");
-                    return [4 /*yield*/, medidaRepo.find()];
+                    _a.trys.push([8, 10, , 11]);
+                    return [4 /*yield*/, medidaRepo.delete(id)];
                 case 9:
-                    medida = _a.sent();
-                    _a.label = 10;
-                case 10: return [3 /*break*/, 12];
-                case 11:
+                    _a.sent();
+                    return [3 /*break*/, 11];
+                case 10:
                     e_7 = _a.sent();
-                    res.status(404).json({ message: 'Algo anda mal' });
-                    return [3 /*break*/, 12];
-                case 12:
-                    res.send(medida);
-                    return [2 /*return*/];
+                    console.log("e: ", e_7);
+                    return [2 /*return*/, res.status(404).json({ message: "no se pudo eliminar la medida" })];
+                case 11: return [2 /*return*/, res.status(201).json({ message: 'Medida eliminada' })];
             }
         });
     }); };

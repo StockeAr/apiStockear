@@ -14,13 +14,13 @@ export class DescuentoController {
                 where: { user: userId }
             });
         } catch (e) {
-            res.status(404).json({ message: 'Algo anda mal' });
+            return res.status(404).json({ message: 'Algo anda mal' });
         }
 
         if (descuento.length > 0) {
-            res.send(descuento);
+            return res.send(descuento);
         } else {
-            res.status(404).json({ message: 'No hubo resultado' });
+            return res.status(404).json({ message: 'No hubo resultado' });
         }
     }
 
@@ -35,21 +35,22 @@ export class DescuentoController {
                 select: ['id', 'descripcion', 'monto', 'tipo'],
                 where: { user: userId }
             });
-            res.send(descuento);
         } catch (error) {
-            res.status(404).json({ message: 'No hubo resultado' });
+            return res.status(404).json({ message: 'No hubo resultado' });
         }
+
+        return res.send(descuento);
     };
 
     static newDescuento = async (req: Request, res: Response) => {
-        const { descripcion,monto,tipo } = req.body;
+        const { descripcion, monto, tipo } = req.body;
         const { userId } = res.locals.jwtPayload;
 
         const descuento = new Descuento();
         descuento.descripcion = descripcion;
         descuento.user = userId;
-        descuento.monto=monto;
-        descuento.tipo=tipo;
+        descuento.monto = monto;
+        descuento.tipo = tipo;
 
         const opcionesValidacion = { validationError: { target: false, value: false } };
         const errors = await validate(descuento, opcionesValidacion);
@@ -64,12 +65,12 @@ export class DescuentoController {
             console.log(e);
             return res.status(404).json({ message: 'algo salio mal' });
         }
-        res.status(201).json({ message: 'descuento Agregado' });
+        return res.status(201).json({ message: 'descuento Agregado' });
     }
     static editDescuento = async (req: Request, res: Response) => {
         let descuento;
         const { id } = req.params;
-        const { descripcion,monto,tipo } = req.body;
+        const { descripcion, monto, tipo } = req.body;
         const { userId } = res.locals.jwtPayload;
 
         const descuentoRepo = getRepository(Descuento);
@@ -78,8 +79,8 @@ export class DescuentoController {
                 where: { user: userId }
             });
             descuento.descripcion = descripcion;
-            descuento.monto=monto;
-            descuento.tipo=tipo;
+            descuento.monto = monto;
+            descuento.tipo = tipo;
         } catch (e) {
             return res.status(404).json({ message: 'categoria no encontrada' });
         }
@@ -96,7 +97,7 @@ export class DescuentoController {
         catch (e) {
             return res.status(409).json({ message: 'El nombre del descuento ya esta en uso' })
         }
-        res.status(201).json({ message: 'descuento editado' });
+        return res.status(201).json({ message: 'descuento editado' });
     }
 
     static deleteDescuento = async (req: Request, res: Response) => {
@@ -116,7 +117,8 @@ export class DescuentoController {
         }
 
         //eliminando categoria para
-        descuentoRepo.delete(id);
+        await descuentoRepo.delete(id);
         res.status(201).json({ message: 'descuento eliminado' });
     }
 }
+export default DescuentoController;

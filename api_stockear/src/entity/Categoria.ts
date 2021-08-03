@@ -13,7 +13,7 @@ export class Categoria {
     @IsNotEmpty()
     descripcion: string;
 
-    @OneToMany(() => Producto, (producto: Producto) => producto.categoria, { nullable: true })
+    @OneToMany(() => Producto, (producto: Producto) => producto.categoria)
     productos: Producto[];
 
     @ManyToOne(() => User, (user: User) => user.categorias)

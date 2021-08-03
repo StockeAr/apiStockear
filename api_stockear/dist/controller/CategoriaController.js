@@ -68,20 +68,21 @@ var CategoriaController = /** @class */ (function () {
                     return [3 /*break*/, 4];
                 case 3:
                     e_1 = _b.sent();
+                    console.log("e: ", e_1);
                     return [2 /*return*/, res.status(404).json({ message: 'Algo anda mal' })];
                 case 4:
                     if (categoria.length > 0) {
                         return [2 /*return*/, res.send(categoria)];
                     }
                     else {
-                        return [2 /*return*/, res.status(404).json({ message: 'No hubo resultado' })];
+                        return [2 /*return*/, res.status(404).json({ message: 'No hubo resultado, agrege categorias' })];
                     }
                     return [2 /*return*/];
             }
         });
     }); };
     CategoriaController.getById = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var id, userId, categoriaRepo, categoria, error_1;
+        var id, userId, categoriaRepo, categoria, e_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -99,14 +100,15 @@ var CategoriaController = /** @class */ (function () {
                     categoria = _a.sent();
                     return [2 /*return*/, res.send(categoria)];
                 case 3:
-                    error_1 = _a.sent();
+                    e_2 = _a.sent();
+                    console.log("e: ", e_2);
                     return [2 /*return*/, res.status(404).json({ message: 'No hubo resultado' })];
                 case 4: return [2 /*return*/];
             }
         });
     }); };
     CategoriaController.newCategoria = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var descripcion, userId, categoria, opcionesValidacion, errors, categoriaRepo, e_2;
+        var descripcion, userId, categoria, opcionesValidacion, errors, categoriaRepo, e_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -131,15 +133,15 @@ var CategoriaController = /** @class */ (function () {
                     _a.sent();
                     return [3 /*break*/, 5];
                 case 4:
-                    e_2 = _a.sent();
-                    console.log(e_2);
+                    e_3 = _a.sent();
+                    console.log(e_3);
                     return [2 /*return*/, res.status(404).json({ message: 'algo salio mal' })];
                 case 5: return [2 /*return*/, res.status(201).json({ message: 'categoria Agregada' })];
             }
         });
     }); };
     CategoriaController.editCategoria = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var categoria, id, descripcion, userId, categoriaRepo, e_3, opcionesValidacion, errors, e_4;
+        var categoria, id, descripcion, userId, categoriaRepo, e_4, opcionesValidacion, errors, e_5;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -161,7 +163,8 @@ var CategoriaController = /** @class */ (function () {
                     categoria.descripcion = descripcion;
                     return [3 /*break*/, 4];
                 case 3:
-                    e_3 = _a.sent();
+                    e_4 = _a.sent();
+                    console.log("e: ", e_4);
                     return [2 /*return*/, res.status(404).json({ message: 'categoria no encontrada' })];
                 case 4:
                     opcionesValidacion = { validationError: { target: false, value: false } };
@@ -179,42 +182,50 @@ var CategoriaController = /** @class */ (function () {
                     _a.sent();
                     return [3 /*break*/, 9];
                 case 8:
-                    e_4 = _a.sent();
+                    e_5 = _a.sent();
+                    console.log("e: ", e_5);
                     return [2 /*return*/, res.status(409).json({ message: 'El nombre de la categoria ya esta en uso' })];
                 case 9: return [2 /*return*/, res.status(201).json({ message: 'categoria editada' })];
             }
         });
     }); };
     CategoriaController.deleteCategoria = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-        var id, adminId, categoriaRepo, categoria, err_1;
+        var id, userId, categoriaRepo, categoria, e_6, e_7;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     id = req.params.id;
-                    adminId = res.locals.jwtPayload.adminId;
+                    userId = res.locals.jwtPayload.userId;
                     categoriaRepo = typeorm_1.getRepository(Categoria_1.Categoria);
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, categoriaRepo.find({
-                            where: { user: adminId, id: id }
+                    return [4 /*yield*/, categoriaRepo.findOneOrFail(id, {
+                            where: { user: userId }
                         })];
                 case 2:
                     categoria = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    err_1 = _a.sent();
-                    console.log(err_1);
+                    e_6 = _a.sent();
+                    console.log("e: ", e_6);
                     return [2 /*return*/, res.status(404).json({ message: 'categoria no encontrada' })];
                 case 4:
-                    //eliminando categoria para
-                    categoriaRepo.delete(id);
-                    res.status(201).json({ message: 'categoria eliminada' });
-                    return [2 /*return*/];
+                    _a.trys.push([4, 6, , 7]);
+                    return [4 /*yield*/, categoriaRepo.delete(id)];
+                case 5:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 6:
+                    e_7 = _a.sent();
+                    console.log("e: ", e_7);
+                    return [2 /*return*/, res.status(404).json({ message: "No se pudo eliminar" })];
+                case 7: return [2 /*return*/, res.status(201).json({ message: 'categoria eliminada' })];
             }
         });
     }); };
     return CategoriaController;
 }());
 exports.CategoriaController = CategoriaController;
+exports.default = CategoriaController;
 //# sourceMappingURL=CategoriaController.js.map

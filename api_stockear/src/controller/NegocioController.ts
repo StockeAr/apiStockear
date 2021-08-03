@@ -12,29 +12,30 @@ export class NegocioController {
         let negocio;
         const negocioRepo = getRepository(Negocio);
         try {
-            negocio = await negocioRepo.find({
-                select: ['correo', 'descripcion', 'direccion', 'imagen', 'nombre', 'telefono'],
-                where: [
-                    { id: negocioId }
-                ]
+            negocio = await negocioRepo.findOneOrFail(negocioId,{
+                select:['correo','descripcion','direccion','imagen','nombre','telefono']
             });
         } catch (e) {
             console.log("e: ", e);
-            return res.status(404).json({ message: "algo anda mal" });
+            return res.status(404).json({ message: "no se encontro el negocio" });
         }
 
-        if (negocio.length == 1) {
-            return res.status(200).json(negocio)
-        } else {
-            return res.status(404).json({ message: "no se encontro el negocio" })
-        }
+        return res.status(200).json(negocio);
     }
 
     static new = async (req: Request, res: Response) => {
-        //const { userId } = res.locals.jwtPayload;
         const { img, name, descripcion, direccion, telefono, userId } = req.body;
-        const negocio = new Negocio();
 
+        const userRepo = getRepository(User);
+        let user: User;
+        try {
+            user = await userRepo.findOneOrFail(userId, { where: { negocio: null } });
+        } catch (e) {
+            console.log('e: ', e);
+            return res.status(400).json({ message: "algo anda mal 1" });
+        }
+
+        const negocio = new Negocio();
         negocio.imagen = img;
         negocio.nombre = name;
         negocio.descripcion = descripcion;
@@ -56,14 +57,12 @@ export class NegocioController {
             return res.status(400).json({ message: "algo anda mal" });
         }
 
-        const userRepo = getRepository(User)
-        let user: User;
+        //relaciono usuario con negocio
         try {
-            user = await userRepo.findOneOrFail(userId);
             user.negocio = aux.id;
-            userRepo.save(user);
+            await userRepo.save(user);
         } catch (e) {
-            return res.status(400).json({ message: "algo anda mal, cominiquese con el admin" });
+            return res.status(400).json({ message: "algo anda mal, contactese con soporte" });
         }
         return res.status(200).json({ message: 'negocio creado con exito, inicie session nuevamente' });
     }
@@ -103,3 +102,4 @@ export class NegocioController {
         return res.status(200).json({ message: "negocio editado con exito" });
     }
 }
+export default NegocioController;

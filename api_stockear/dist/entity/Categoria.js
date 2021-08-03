@@ -28,7 +28,7 @@ var Categoria = /** @class */ (function () {
         __metadata("design:type", String)
     ], Categoria.prototype, "descripcion", void 0);
     __decorate([
-        typeorm_1.OneToMany(function () { return Producto_1.Producto; }, function (producto) { return producto.categoria; }, { nullable: true }),
+        typeorm_1.OneToMany(function () { return Producto_1.Producto; }, function (producto) { return producto.categoria; }),
         __metadata("design:type", Array)
     ], Categoria.prototype, "productos", void 0);
     __decorate([

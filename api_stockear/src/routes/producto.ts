@@ -1,18 +1,20 @@
 import { Router } from "express";
-import {ProductoController} from '../controller/ProductoController'
+import { ProductoController } from '../controller/ProductoController'
 import { checkJwt } from "../middleware/jwt";
 import { chekRol } from "../middleware/rol";
 
-const router=Router();
+const router = Router();
 //obtener todos los productos
-router.get('/',[checkJwt],ProductoController.getAll);
+router.get('/list', [checkJwt], ProductoController.getAll);
+//obtener los productos activos
+router.get('/list-active', [checkJwt], ProductoController.getAllActive);
 //obtener un producto
-router.get('/:id', [checkJwt, chekRol(['admin'])],ProductoController.getById);
+router.get('/find/:id', [checkJwt, chekRol(['admin'])], ProductoController.getById);
 //crear nuevo producto
-router.post('/',[checkJwt, chekRol(['admin'])],ProductoController.newProducto);
+router.post('/new', [checkJwt, chekRol(['admin'])], ProductoController.newProducto);
 //editar un producto
-router.patch('/:id',[checkJwt, chekRol(['admin'])],ProductoController.editProducto);
+router.patch('/edit/:id', [checkJwt, chekRol(['admin'])], ProductoController.editProducto);
 //eliminar un producto
-router.delete('/:id',[checkJwt, chekRol(['admin'])],ProductoController.deleteProducto);
+router.delete('/delete/:id', [checkJwt, chekRol(['admin'])], ProductoController.deleteProducto);
 
 export default router;

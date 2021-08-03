@@ -2,28 +2,31 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Producto } from "./Producto";
 import { Venta } from "./Venta";
 
-  @Entity()
-  export class VentaProducto{
+@Entity()
+export class VentaProducto {
 
-    /* ignorar esta columna de la tabla venta_producto, pues el ORM no permite crear entidades sin Primary Key, esta de relleno*/
-      @PrimaryGeneratedColumn()
-      public ventaProducto!:number;
+  /* ignorar esta columna de la tabla venta_producto, pues el ORM no permite crear entidades sin Primary Key, esta de relleno*/
+  @PrimaryGeneratedColumn()
+  public ventaProducto!: number;
 
-      @Column()
-      public productoId!:number;
+  @Column()
+  public productoId!: number;
 
-      @Column()
-      public ventaId!:number;
+  @Column()
+  public ventaId!: number;
 
-      @Column()
-      public cantidad!:number;
+  @Column({ type: "float" })
+  public cantidad!: number;
 
-      @Column()
-      public totalParcial!:number;
+  @Column({ type: "float" })
+  public precio!: number;
 
-      @ManyToOne(()=>Venta,(venta:Venta)=>venta.ventaProducto)
-      public venta!:Venta;
+  @Column({ type: "float" })
+  public totalParcial!: number;
 
-      @ManyToOne(()=>Producto,(producto:Producto)=>producto.ventaProducto)
-      public producto!:Producto;
-  }
+  @ManyToOne(() => Venta, (venta: Venta) => venta.ventaProducto)
+  public venta!: Venta;
+
+  @ManyToOne(() => Producto, (producto: Producto) => producto.ventaProducto)
+  public producto!: Producto;
+}

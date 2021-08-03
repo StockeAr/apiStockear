@@ -7,30 +7,25 @@ import { VentaProducto } from "./VentaProducto";
 
 @Entity()
 
-export class Venta{
+export class Venta {
     @PrimaryGeneratedColumn()
-    id :number;
+    id: number;
 
-    @Column({ type: 'datetime'})
-    fechaVenta:Date;
+    @Column({ type: 'datetime' })
+    fechaVenta: Date;
 
-    @Column()
-    total:number;
+    @Column({ type: "float" })
+    total: number;
 
-    @ManyToOne(()=> User,(user:User)=>user.ventas)
-    user:User;
+    @ManyToOne(() => User, (user: User) => user.ventas)
+    user: User;
 
-    @OneToMany(()=>VentaProducto,(ventaProducto:VentaProducto)=>ventaProducto.venta)
-    public ventaProducto!:VentaProducto[];
+    @OneToMany(() => VentaProducto, (ventaProducto: VentaProducto) => ventaProducto.venta)
+    public ventaProducto!: VentaProducto[];
 
-    @ManyToMany(()=>Descuento,(descuento:Descuento)=>descuento.ventas)
-    @JoinTable()
-    descuentos:Descuento[];
+    @ManyToMany(() => Descuento, (descuento: Descuento) => descuento.ventas)
+    descuentos: Descuento[];
 
-    @ManyToMany(()=>Recargo,(recargo:Recargo)=>recargo.ventas)
-    @JoinTable()
-    recargos:Recargo[];
-
-    
-
+    @ManyToMany(() => Recargo, (recargo: Recargo) => recargo.ventas)
+    recargos: Recargo[];
 }
